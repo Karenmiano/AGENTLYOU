@@ -1,15 +1,18 @@
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework.permissions import IsAuthenticated
+
 from users.serializers import UserSerializer
+from authentication.serializers import LogoutSerializer
 
 
-class UserRegistrationView(APIView):
+class RegisterUserView(APIView):
     def post(self, request, format=None):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
-
             user = serializer.save()
 
             # log in user and return access and refresh tokens
@@ -34,3 +37,26 @@ class UserRegistrationView(APIView):
                     )
 
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LogoutView(APIView):
+    """
+    View for logging out a user.
+    Logs out the user by blacklisting the refresh token.
+    """
+
+    permission_classes = [
+        IsAuthenticated,
+    ]
+
+    def post(self, request, format=None):
+        serializer = LogoutSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            refresh_token = serializer.validated_data["refresh"]
+            try:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            except TokenError as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
