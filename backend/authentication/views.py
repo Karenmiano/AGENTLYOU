@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-
+from rest_framework_simplejwt.tokens import RefreshToken
 from users.serializers import UserSerializer
 
 
@@ -9,8 +9,19 @@ class UserRegistrationView(APIView):
     def post(self, request, format=None):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+            user = serializer.save()
+
+            # log in user and return access and refresh tokens
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+            refresh_token = str(refresh)
+            token_pair = {
+                "access": access_token,
+                "refresh": refresh_token,
+            }
+
+            return Response(token_pair, status=status.HTTP_201_CREATED)
         else:
             errors = serializer.errors
             email_errors = errors.get("email", None)

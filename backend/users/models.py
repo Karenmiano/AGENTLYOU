@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
@@ -7,7 +9,17 @@ from django.db import models
 
 
 class CustomUserManager(BaseUserManager):
+    """
+    Custom User Manager for the CustomUser model.
+    """
+
     def create_user(self, email, password, first_name, last_name, **extra_fields):
+        """
+        Creates a new user.
+        Raises ValueError if email is not provided.
+        Normalizes email for case insensitive uniqueness and consistent storage.
+        Sets password and saves user.
+        """
         if not email:
             raise ValueError("The Email must be provided")
 
@@ -20,13 +32,11 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password, first_name, last_name, **extra_fields):
+        """
+        Creates superuser, raises ValueError if is_staff or is_superuser is not True.
+        """
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
-        extra_fields.setdefault("is_active", True)
-
-        extra_fields.setdefault("city", "")
-        extra_fields.setdefault("country", "")
-        extra_fields.setdefault("default_role", "")
 
         if extra_fields.get("is_staff") is not True:
             raise ValueError("Superuser must have is_staff=True")
@@ -38,11 +48,12 @@ class CustomUserManager(BaseUserManager):
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     """
-    Custom User model to use email as identifier instead of username.
+    Custom User model for application.
     """
 
     DEFAULT_ROLE_CHOICES = [("agent", "Agent"), ("client", "Client")]
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
@@ -51,8 +62,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     city = models.CharField(max_length=255)
     country = models.CharField(max_length=255)
 
-    has_agent_profile = models.BooleanField(default=False)
-    has_client_profile = models.BooleanField(default=False)
+    is_client = models.BooleanField(default=False)
+    is_agent = models.BooleanField(default=False)
     default_role = models.CharField(
         max_length=20,
         choices=DEFAULT_ROLE_CHOICES,
@@ -74,6 +85,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         """
-        Return a string representation of the User.
+        Return email as string representation of the User.
         """
         return self.email
