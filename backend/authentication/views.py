@@ -1,15 +1,19 @@
-from rest_framework import status
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.exceptions import TokenError
-from rest_framework.permissions import IsAuthenticated
-
-from users.serializers import UserSerializer
 from authentication.serializers import LogoutSerializer
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.tokens import RefreshToken
+from users.serializers import UserSerializer
 
 
 class RegisterUserView(APIView):
+    """
+    View for registering a new user.
+    Immediately logs them in and returns token pair for the user.
+    """
+
     def post(self, request, format=None):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
@@ -30,7 +34,7 @@ class RegisterUserView(APIView):
             email_errors = errors.get("email", None)
 
             if email_errors:
-                if "user with this email already exists." in email_errors:
+                if "custom user with this email already exists." in email_errors:
                     return Response(
                         {"error": "User with this email already exists."},
                         status=status.HTTP_409_CONFLICT,
