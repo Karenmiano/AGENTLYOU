@@ -1,8 +1,14 @@
+import jwt
+
 from django.urls import reverse
+from django.conf import settings
 from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
+
 from users.models import CustomUser
+from authentication.serializers import CustomTokenObtainPairSerializer
+from core.models import Location
 
 
 class TestRegisterUserView(APITestCase):
@@ -21,8 +27,10 @@ class TestRegisterUserView(APITestCase):
             "confirm_password": "testpassword",
             "first_name": "Test",
             "last_name": "User",
-            "city": "Test City",
-            "country": "Test Country",
+            "location": {
+                "city": "Test City",
+                "country": "Test Country",
+            },
             "default_role": "client",
         }
 
@@ -36,10 +44,28 @@ class TestRegisterUserView(APITestCase):
         response = self.client.post(self.url, self.user_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_data = response.data
+
+        # check token and custom claims present
         self.assertIn("access", response_data)
-        self.assertTrue(response_data["access"])
+        access_token = response_data["access"]
+        self.assertTrue(access_token)
+        decoded_access = jwt.decode(
+            access_token, settings.SECRET_KEY, algorithms=["HS256"]
+        )
+        self.assertEqual(decoded_access["default_role"], "client")
+        self.assertEqual(decoded_access["is_client"], True)
+        self.assertEqual(decoded_access["is_agent"], False)
+
         self.assertIn("refresh", response_data)
-        self.assertTrue(response_data["refresh"])
+        refresh_token = response_data["refresh"]
+        self.assertTrue(refresh_token)
+        decoded_refresh = jwt.decode(
+            refresh_token, settings.SECRET_KEY, algorithms=["HS256"]
+        )
+        self.assertEqual(decoded_refresh["default_role"], "client")
+        self.assertEqual(decoded_refresh["is_client"], True)
+        self.assertEqual(decoded_refresh["is_agent"], False)
+
         self.assertEqual(CustomUser.objects.count(), 1)
 
         user = CustomUser.objects.get(email=self.user_data["email"])
@@ -52,13 +78,16 @@ class TestRegisterUserView(APITestCase):
         Test the user registration with an existing email returns a 409
         error instead of 400 as configured.
         """
+        location = Location.objects.create(
+            city="Test City",
+            country="Test Country",
+        )
         user1_data = {
             "email": "test@test.com",
             "password": "testpassword",
             "first_name": "First",
             "last_name": "User",
-            "city": "Test City",
-            "country": "Test Country",
+            "location": location,
             "default_role": "client",
             "is_client": True,
             "is_agent": False,
@@ -89,13 +118,16 @@ class TestLogoutView(APITestCase):
     """
 
     def setUp(self):
+        location = Location.objects.create(
+            city="Test City",
+            country="Test Country",
+        )
         user_data = {
             "email": "test@test.com",
             "password": "testpassword",
             "first_name": "First",
             "last_name": "User",
-            "city": "Test City",
-            "country": "Test Country",
+            "location": location,
             "default_role": "client",
             "is_client": True,
             "is_agent": False,
@@ -106,7 +138,7 @@ class TestLogoutView(APITestCase):
 
     def test_logout_success(self):
         # login user
-        refresh = RefreshToken.for_user(self.user)
+        refresh = CustomTokenObtainPairSerializer.get_token(self.user)
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {refresh.access_token}")
 
         # logout user
@@ -133,7 +165,7 @@ class TestLogoutView(APITestCase):
         """
         Test the logout view returns a 400 error if the refresh token is not provided.
         """
-        refresh = RefreshToken.for_user(self.user)
+        refresh = CustomTokenObtainPairSerializer.get_token(self.user)
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {refresh.access_token}")
 
         response = self.client.post(self.logout_url, format="json")
@@ -145,7 +177,7 @@ class TestLogoutView(APITestCase):
         """
         Test the logout view returns a 400 error if the refresh token is invalid.
         """
-        refresh = RefreshToken.for_user(self.user)
+        refresh = CustomTokenObtainPairSerializer.get_token(self.user)
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {refresh.access_token}")
 
         response = self.client.post(

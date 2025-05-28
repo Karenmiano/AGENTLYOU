@@ -7,6 +7,8 @@ from django.contrib.auth.models import (
 )
 from django.db import models
 
+from core.models import Location
+
 
 class CustomUserManager(BaseUserManager):
     """
@@ -59,8 +61,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=255)
 
     # location
-    city = models.CharField(max_length=255)
-    country = models.CharField(max_length=255)
+    location = models.ForeignKey(
+        Location, on_delete=models.SET_NULL, related_name="users", null=True
+    )
 
     is_client = models.BooleanField(default=False)
     is_agent = models.BooleanField(default=False)

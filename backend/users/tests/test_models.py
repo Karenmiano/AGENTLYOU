@@ -1,3 +1,4 @@
+from core.models import Location
 from django.test import TestCase
 from users.models import CustomUser
 
@@ -11,13 +12,14 @@ class TestCustomUserModel(TestCase):
         """
         Set up common test data for user and superuser creation.
         """
+        location = Location.objects.create(city="Test City", country="Test Country")
+
         self.user_data = {
             "email": "test@example.com",
             "password": "testpassword",
             "first_name": "Test",
             "last_name": "User",
-            "city": "Test City",
-            "country": "Test Country",
+            "location": location,
             "default_role": "client",
             "is_agent": False,
             "is_client": True,

@@ -1,6 +1,8 @@
 from rest_framework import serializers
 
-from .models import CustomUser
+from users.models import CustomUser
+from core.models import Location
+from core.serializers import LocationSerializer
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -8,6 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
     Serializer for the CustomUser model.
     """
 
+    location = LocationSerializer()
     confirm_password = serializers.CharField(write_only=True)
 
     class Meta:
@@ -19,8 +22,7 @@ class UserSerializer(serializers.ModelSerializer):
             "last_name",
             "password",
             "confirm_password",
-            "city",
-            "country",
+            "location",
             "is_client",
             "is_agent",
             "default_role",
@@ -72,6 +74,10 @@ class UserSerializer(serializers.ModelSerializer):
         default_role = validated_data.get("default_role")
         validated_data["is_client"] = default_role == "client"
         validated_data["is_agent"] = default_role == "agent"
+
+        location_data = validated_data.pop("location")
+        location, _ = Location.objects.get_or_create(**location_data)
+        validated_data["location"] = location
 
         user = CustomUser.objects.create_user(**validated_data)
         return user

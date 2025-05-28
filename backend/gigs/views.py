@@ -14,6 +14,9 @@ class GigListCreateView(generics.ListCreateAPIView):
     serializer_class = GigSerializer
     permission_classes = [IsAuthenticated]
 
+    def perform_create(self, serializer):
+        serializer.save(client=self.request.user)
+
 
 class GigRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     """

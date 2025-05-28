@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from users.serializers import UserSerializer
+from authentication.serializers import CustomTokenObtainPairSerializer
 
 
 class RegisterUserView(APIView):
@@ -20,7 +21,7 @@ class RegisterUserView(APIView):
             user = serializer.save()
 
             # log in user and return access and refresh tokens
-            refresh = RefreshToken.for_user(user)
+            refresh = CustomTokenObtainPairSerializer.get_token(user)
             access_token = str(refresh.access_token)
             refresh_token = str(refresh)
             token_pair = {

@@ -1,6 +1,8 @@
 from authentication.serializers import CustomTokenObtainPairSerializer
 from django.test import TestCase
+
 from users.models import CustomUser
+from core.models import Location
 
 
 class TestCustomTokenObtainPairSerializer(TestCase):
@@ -13,13 +15,16 @@ class TestCustomTokenObtainPairSerializer(TestCase):
     """
 
     def test_custom_fields_in_token(self):
+        location = Location.objects.create(
+            city="Test City",
+            country="Test Country",
+        )
         user_data = {
             "email": "test@test.com",
             "password": "testpassword",
             "first_name": "First",
             "last_name": "User",
-            "city": "Test City",
-            "country": "Test Country",
+            "location": location,
             "default_role": "client",
             "is_client": True,
             "is_agent": False,

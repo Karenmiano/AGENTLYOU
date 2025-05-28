@@ -1,6 +1,7 @@
 from django.test import TestCase
 from users.models import CustomUser
 from users.serializers import UserSerializer
+from core.models import Location
 
 
 class TestUserSerializer(TestCase):
@@ -19,8 +20,10 @@ class TestUserSerializer(TestCase):
             "last_name": "User",
             "password": "password123",
             "confirm_password": "password123",
-            "city": "Test City",
-            "country": "Test Country",
+            "location": {
+                "city": "Test City",
+                "country": "Test Country",
+            },
             "default_role": "client",
         }
 
@@ -102,13 +105,16 @@ class TestUserSerializer(TestCase):
         Ensures expected readable fields are present and write-only fields
         like 'password' and 'confirm_password' are excluded.
         """
+        location = Location.objects.create(
+            city="Output City",
+            country="Output Country",
+        )
         user = CustomUser.objects.create_user(
             email="serialize@example.com",
             password="password123",
             first_name="Serialize",
             last_name="Me",
-            city="Output City",
-            country="Output Country",
+            location=location,
             default_role="agent",
             is_client=False,
             is_agent=True,
