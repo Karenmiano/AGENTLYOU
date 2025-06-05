@@ -1,16 +1,19 @@
+import { BrowserRouter, Routes, Route } from "react-router";
+import SignUp from "./pages/SignUp";
+import AuthLayout from "./ui/AuthLayout";
+
 function App() {
   return (
-    <>
-      <p>Hello</p>
-      <div className="badge badge-primary">Primary</div>
-      <div className="badge badge-secondary">Secondary</div>
-      <div className="badge badge-accent">Accent</div>
-      <div className="badge badge-neutral">Neutral</div>
-      <div className="badge badge-info">Info</div>
-      <div className="badge badge-success">Success</div>
-      <div className="badge badge-warning">Warning</div>
-      <div className="badge badge-error">Error</div>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route index element={<h1>Hello World</h1>} />
+        <Route element={<AuthLayout />}>
+          <Route path="signup" element={<SignUp />} />
+          <Route path="signin" element={<p>Sign in</p>} />
+        </Route>
+        <Route path="*" element={<h1>Page not found</h1>} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
