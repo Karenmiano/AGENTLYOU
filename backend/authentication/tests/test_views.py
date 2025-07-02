@@ -1,14 +1,11 @@
 import jwt
-
-from django.urls import reverse
-from django.conf import settings
-from rest_framework import status
-from rest_framework.test import APITestCase
-from rest_framework_simplejwt.tokens import RefreshToken
-
-from users.models import CustomUser
 from authentication.serializers import CustomTokenObtainPairSerializer
 from core.models import Location
+from django.conf import settings
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APITestCase
+from users.models import CustomUser
 
 
 class TestRegisterUserView(APITestCase):
@@ -25,8 +22,7 @@ class TestRegisterUserView(APITestCase):
             "email": "test@test.com",
             "password": "testpassword",
             "confirm_password": "testpassword",
-            "first_name": "Test",
-            "last_name": "User",
+            "full_name": "Test User",
             "location": {
                 "city": "Test City",
                 "country": "Test Country",
@@ -85,8 +81,7 @@ class TestRegisterUserView(APITestCase):
         user1_data = {
             "email": "test@test.com",
             "password": "testpassword",
-            "first_name": "First",
-            "last_name": "User",
+            "full_name": "First User",
             "location": location,
             "default_role": "client",
             "is_client": True,
@@ -125,8 +120,7 @@ class TestLogoutView(APITestCase):
         user_data = {
             "email": "test@test.com",
             "password": "testpassword",
-            "first_name": "First",
-            "last_name": "User",
+            "full_name": "First User",
             "location": location,
             "default_role": "client",
             "is_client": True,

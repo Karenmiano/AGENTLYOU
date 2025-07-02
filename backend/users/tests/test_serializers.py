@@ -1,7 +1,7 @@
+from core.models import Location
 from django.test import TestCase
 from users.models import CustomUser
 from users.serializers import UserSerializer
-from core.models import Location
 
 
 class TestUserSerializer(TestCase):
@@ -16,8 +16,7 @@ class TestUserSerializer(TestCase):
         """
         self.user_valid_data = {
             "email": "test@example.com",
-            "first_name": "Test",
-            "last_name": "User",
+            "full_name": "Test User",
             "password": "password123",
             "confirm_password": "password123",
             "location": {
@@ -44,7 +43,7 @@ class TestUserSerializer(TestCase):
 
         self.assertIsInstance(user, CustomUser)
         self.assertEqual(user.email, self.user_valid_data["email"])
-        self.assertEqual(user.first_name, self.user_valid_data["first_name"])
+        self.assertEqual(user.full_name, self.user_valid_data["full_name"])
         self.assertTrue(user.check_password(self.user_valid_data["password"]))
         self.assertTrue(user.is_client)
         self.assertFalse(user.is_agent)
@@ -112,8 +111,7 @@ class TestUserSerializer(TestCase):
         user = CustomUser.objects.create_user(
             email="serialize@example.com",
             password="password123",
-            first_name="Serialize",
-            last_name="Me",
+            full_name="Serialize Me",
             location=location,
             default_role="agent",
             is_client=False,

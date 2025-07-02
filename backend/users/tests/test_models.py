@@ -17,8 +17,7 @@ class TestCustomUserModel(TestCase):
         self.user_data = {
             "email": "test@example.com",
             "password": "testpassword",
-            "first_name": "Test",
-            "last_name": "User",
+            "full_name": "Test User",
             "location": location,
             "default_role": "client",
             "is_agent": False,
@@ -28,8 +27,7 @@ class TestCustomUserModel(TestCase):
         self.superuser_data = {
             "email": "superuser@example.com",
             "password": "superpassword",
-            "first_name": "Super",
-            "last_name": "User",
+            "full_name": "Super User",
         }
 
     def test_create_user_success(self):
