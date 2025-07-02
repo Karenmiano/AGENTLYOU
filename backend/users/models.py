@@ -1,5 +1,6 @@
 import uuid
 
+from core.models import Location
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
@@ -7,15 +8,13 @@ from django.contrib.auth.models import (
 )
 from django.db import models
 
-from core.models import Location
-
 
 class CustomUserManager(BaseUserManager):
     """
     Custom User Manager for the CustomUser model.
     """
 
-    def create_user(self, email, password, first_name, last_name, **extra_fields):
+    def create_user(self, email, password, full_name, **extra_fields):
         """
         Creates a new user.
         Raises ValueError if email is not provided.
@@ -26,14 +25,12 @@ class CustomUserManager(BaseUserManager):
             raise ValueError("The Email must be provided")
 
         email = self.normalize_email(email)
-        user = self.model(
-            email=email, first_name=first_name, last_name=last_name, **extra_fields
-        )
+        user = self.model(email=email, full_name=full_name, **extra_fields)
         user.set_password(password)
         user.save()
         return user
 
-    def create_superuser(self, email, password, first_name, last_name, **extra_fields):
+    def create_superuser(self, email, password, full_name, **extra_fields):
         """
         Creates superuser, raises ValueError if is_staff or is_superuser is not True.
         """
@@ -45,7 +42,7 @@ class CustomUserManager(BaseUserManager):
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True")
 
-        return self.create_user(email, password, first_name, last_name, **extra_fields)
+        return self.create_user(email, password, full_name, **extra_fields)
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
@@ -57,8 +54,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
+    full_name = models.CharField(max_length=255)
 
     # location
     location = models.ForeignKey(
@@ -81,7 +77,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["first_name", "last_name"]
+    REQUIRED_FIELDS = ["full_name"]
 
     class Meta:
         db_table = "users"

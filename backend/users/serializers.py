@@ -1,8 +1,7 @@
-from rest_framework import serializers
-
-from users.models import CustomUser
 from core.models import Location
 from core.serializers import LocationSerializer
+from rest_framework import serializers
+from users.models import CustomUser
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -18,8 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "email",
-            "first_name",
-            "last_name",
+            "name",
             "password",
             "confirm_password",
             "location",
