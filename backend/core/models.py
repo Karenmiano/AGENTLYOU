@@ -7,7 +7,7 @@ class Location(models.Model):
     """
 
     city = models.CharField(max_length=255)
-    state_region = models.CharField(max_length=255, blank=True, default="")
+    state_region = models.CharField(max_length=255, blank=True)
     country = models.CharField(max_length=255)
 
     # add a unique constraint to city, state_province, country combo
@@ -16,4 +16,4 @@ class Location(models.Model):
         unique_together = ("city", "state_region", "country")
 
     def __str__(self):
-        return f"{self.city}, {self.state_province}, {self.country}"
+        return f"{self.city}, {self.state_region}, {self.country}"

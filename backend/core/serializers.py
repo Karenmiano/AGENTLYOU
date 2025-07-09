@@ -10,7 +10,7 @@ class LocationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Location
-        fields = ["id", "city", "state_province", "country"]
+        fields = ["id", "city", "state_region", "country"]
 
     def get_unique_together_validators(self):
         """

@@ -1,4 +1,4 @@
-from authentication.serializers import LogoutSerializer
+from authentication.serializers import CustomTokenObtainPairSerializer, LogoutSerializer
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -6,7 +6,6 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from users.serializers import UserSerializer
-from authentication.serializers import CustomTokenObtainPairSerializer
 
 
 class RegisterUserView(APIView):
@@ -50,9 +49,7 @@ class LogoutView(APIView):
     Logs out the user by blacklisting the refresh token.
     """
 
-    permission_classes = [
-        IsAuthenticated,
-    ]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
         serializer = LogoutSerializer(data=request.data)
