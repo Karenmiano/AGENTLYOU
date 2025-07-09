@@ -9,7 +9,7 @@ export default defineConfig({
     allowedHosts: [
       "localhost",
       "127.0.0.1",
-      "ba6e-2c0f-2f00-107-700-7520-7c0f-9892-c76b.ngrok-free.app",
+      "polite-blindly-dog.ngrok-free.app",
     ],
   },
 });

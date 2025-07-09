@@ -4,11 +4,14 @@ function AuthLayout() {
   return (
     <div>
       <nav>
-        <div className="text-2xl font-bold small-caps">Agentlyou</div>
+        <div className="text-3xl font-bold small-caps px-6 py-3 invisible">
+          <span className="text-[#E45F2B]">AGE</span>
+          <span className="text-[#F6C445]">NT</span>
+          <span className="text-[#432DD7]">LY</span>
+          <span className="text-[#A0E548]">OU</span>
+        </div>
       </nav>
-      <div className="mx-auto max-w-fit mt-8 sm:mt-10 px-10 py-10">
-        <Outlet />
-      </div>
+      <Outlet />
     </div>
   );
 }
