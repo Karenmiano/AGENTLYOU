@@ -1,8 +1,19 @@
 import uuid
 
 from django.core.exceptions import ValidationError
+from django.core.validators import MinLengthValidator
 from django.db import models
 from django.utils import timezone
+from taggit.managers import TaggableManager
+from taggit.models import GenericUUIDTaggedItemBase, TaggedItemBase
+
+
+class UUIDTaggedItem(GenericUUIDTaggedItemBase, TaggedItemBase):
+    """
+    Custom Through model that uses UUIDs for object IDs
+    """
+
+    pass
 
 
 class Gig(models.Model):
@@ -24,8 +35,10 @@ class Gig(models.Model):
     # gig details
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=255)
-    event_type = models.CharField(max_length=255, blank=True, default="")
-    description = models.TextField()
+    event_label = TaggableManager(through=UUIDTaggedItem, verbose_name="Event Label")
+    description = models.TextField(
+        validators=[MinLengthValidator(50, "Must be atleast 50 characters long.")]
+    )
 
     # location
     location_type = models.CharField(max_length=10, choices=LOCATION_TYPE_CHOICES)
@@ -42,8 +55,7 @@ class Gig(models.Model):
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
 
-    compensation = models.DecimalField(max_digits=10, decimal_places=2)
-    expenses = models.JSONField(blank=True, default=list)
+    compensation = models.DecimalField(max_digits=19, decimal_places=4)
 
     status = models.CharField(
         max_length=255,
@@ -66,16 +78,16 @@ class Gig(models.Model):
     def clean(self):
         super().clean()
 
+        if self.start_datetime < timezone.now():
+            raise ValidationError(
+                {"start_datetime": "Start date and time must be in the future."}
+            )
+
         if self.end_datetime <= self.start_datetime:
             raise ValidationError(
                 {
                     "end_datetime": "End date and time must be greater than start date and time.",
                 }
-            )
-
-        if self.start_datetime < timezone.now():
-            raise ValidationError(
-                {"start_datetime": "Start date and time must be in the future."}
             )
 
         if self.location_type in ["physical", "hybrid"]:

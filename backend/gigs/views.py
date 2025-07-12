@@ -12,7 +12,7 @@ class GigListCreateView(generics.ListCreateAPIView):
 
     queryset = Gig.objects.all()
     serializer_class = GigSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # might need to have client enabled
 
     def perform_create(self, serializer):
         serializer.save(client=self.request.user)

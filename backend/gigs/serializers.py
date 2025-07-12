@@ -10,7 +10,7 @@ class GigSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "title",
-            "event_type",
+            "event_label",
             "description",
             "location_type",
             "venue",
@@ -18,7 +18,6 @@ class GigSerializer(serializers.ModelSerializer):
             "start_datetime",
             "end_datetime",
             "compensation",
-            "expenses",
             "status",
             "client",
             "created_at",
