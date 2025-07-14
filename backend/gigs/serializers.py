@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from django.utils import timezone
-from .models import Gig
+
+from gigs.models import Gig
+from gigs.validators import validate_start_end_datetime, validate_location_fields
 from core.models import Location
 
 
@@ -20,6 +21,7 @@ class GigSerializer(serializers.ModelSerializer):
             "compensation",
             "status",
             "client",
+            "agent",
             "created_at",
             "updated_at",
         ]
@@ -27,28 +29,14 @@ class GigSerializer(serializers.ModelSerializer):
         read_only_fields = ["client"]
 
     def validate(self, data):
-        if data.get("end_datetime") <= data.get("start_datetime"):
-            raise serializers.ValidationError(
-                {
-                    "end_datetime": "End date and time must be greater than start date and time.",
-                }
-            )
+        validate_start_end_datetime(
+            data.get("start_datetime"), data.get("end_datetime")
+        )
 
-        if data.get("start_datetime") < timezone.now():
-            raise serializers.ValidationError(
-                {"start_datetime": "Start date and time must be in the future."}
-            )
-
-        if data.get("location_type") in ["physical", "hybrid"]:
-            if not data.get("venue"):
-                raise serializers.ValidationError(
-                    {"venue": "Venue is required for physical and hybrid gigs."}
-                )
-
-            if not data.get("location"):
-                raise serializers.ValidationError(
-                    {"location": "Location is required for physical and hybrid gigs."}
-                )
+        validate_location_fields(
+            data.get("location_type"), data.get("venue"), data.get("location", None)
+        )
+        return data
 
     def create(self, validated_data):
         if validated_data.get("location"):

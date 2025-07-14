@@ -1,28 +1,14 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Gig
-from .serializers import GigSerializer
+from gigs.serializers import GigSerializer
+from core.permissions import IsClient
 
 
-class GigListCreateView(generics.ListCreateAPIView):
+class GigCreateView(generics.CreateAPIView):
     """
     List all gigs or create a new gig.
     """
 
-    queryset = Gig.objects.all()
     serializer_class = GigSerializer
-    permission_classes = [IsAuthenticated]  # might need to have client enabled
-
-    def perform_create(self, serializer):
-        serializer.save(client=self.request.user)
-
-
-class GigRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    """
-    Retrieve, update or delete a gig instance.
-    """
-
-    queryset = Gig.objects.all()
-    serializer_class = GigSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsClient]

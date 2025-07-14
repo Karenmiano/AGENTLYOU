@@ -1,11 +1,16 @@
 import uuid
 
-from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
-from django.utils import timezone
 from taggit.managers import TaggableManager
 from taggit.models import GenericUUIDTaggedItemBase, TaggedItemBase
+
+from gigs.validators import (
+    validate_start_end_datetime,
+    validate_client,
+    validate_agent,
+    validate_location_fields,
+)
 
 
 class UUIDTaggedItem(GenericUUIDTaggedItemBase, TaggedItemBase):
@@ -26,7 +31,7 @@ class Gig(models.Model):
 
     STATUS_CHOICES = [
         ("draft", "Draft"),
-        ("receiving_applications", "Receiving Applications"),
+        ("published", "Published"),
         ("agent_confirmed", "Agent Confirmed"),
         ("completed", "Completed"),
         ("cancelled", "Cancelled"),
@@ -67,6 +72,15 @@ class Gig(models.Model):
         "users.CustomUser",
         on_delete=models.CASCADE,
         related_name="gigs",
+        validators=[validate_client],
+    )
+
+    agent = models.ForeignKey(
+        "users.CustomUser",
+        on_delete=models.SET_NULL,
+        related_name="agent_gigs",
+        null=True,
+        validators=[validate_agent],
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -78,28 +92,8 @@ class Gig(models.Model):
     def clean(self):
         super().clean()
 
-        if self.start_datetime < timezone.now():
-            raise ValidationError(
-                {"start_datetime": "Start date and time must be in the future."}
-            )
-
-        if self.end_datetime <= self.start_datetime:
-            raise ValidationError(
-                {
-                    "end_datetime": "End date and time must be greater than start date and time.",
-                }
-            )
-
-        if self.location_type in ["physical", "hybrid"]:
-            if not self.venue:
-                raise ValidationError(
-                    {"venue": "Venue is required for physical and hybrid gigs."}
-                )
-
-            if not self.location:
-                raise ValidationError(
-                    {"location": "Location is required for physical and hybrid gigs."}
-                )
+        validate_start_end_datetime(self.start_datetime, self.end_datetime)
+        validate_location_fields(self.location_type, self.venue, self.location)
 
     def __str__(self):
         return self.title
