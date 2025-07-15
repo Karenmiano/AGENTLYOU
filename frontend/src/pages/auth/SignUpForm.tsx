@@ -40,6 +40,7 @@ function SignUpForm() {
       });
 
       const responseData = response.data;
+      console.log("Registration successful:", responseData);
       toast.success("Registration successful!");
       reset();
     } catch (error) {
@@ -109,7 +110,6 @@ function SignUpForm() {
       </button>
       <form className="mb-2" onSubmit={handleSubmit(onSubmit)}>
         <h1 className="text-2xl text-center font-bold mb-5">SignUp</h1>
-
         <div className="mb-3">
           <AuthFormLabel htmlFor="name">Full Name</AuthFormLabel>
           <AuthFormInput
