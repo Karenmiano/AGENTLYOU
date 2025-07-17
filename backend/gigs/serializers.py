@@ -1,11 +1,17 @@
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
+from taggit.serializers import TaggitSerializer, TagListSerializerField
 
 from gigs.models import Gig
 from gigs.validators import validate_start_end_datetime, validate_location_fields
 from core.models import Location
+from core.serializers import LocationSerializer
 
 
-class GigSerializer(serializers.ModelSerializer):
+class GigSerializer(TaggitSerializer, serializers.ModelSerializer):
+    location = LocationSerializer(required=False)
+    event_label = TagListSerializerField()
+
     class Meta:
         model = Gig
         fields = [
@@ -26,8 +32,6 @@ class GigSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
 
-        read_only_fields = ["client"]
-
     def validate(self, data):
         validate_start_end_datetime(
             data.get("start_datetime"), data.get("end_datetime")
@@ -43,4 +47,9 @@ class GigSerializer(serializers.ModelSerializer):
             location = validated_data.pop("location")
             location, _ = Location.objects.get_or_create(**location)
             validated_data["location"] = location
-        return super().create(validated_data)
+        try:
+            gig = Gig.objects.create(**validated_data)
+        except DjangoValidationError as e:
+            raise serializers.ValidationError(e.message_dict)
+
+        return gig

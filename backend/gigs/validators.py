@@ -7,7 +7,7 @@ def validate_client(value):
     Custom validator to ensure the user is a client.
     """
     if not value.is_client:
-        raise ValidationError("User must be a client to create a gig.")
+        raise ValidationError("Client must be an actual client in app.")
 
 
 def validate_agent(value):
@@ -15,7 +15,7 @@ def validate_agent(value):
     Custom validator to ensure the user is an agent.
     """
     if not value.is_agent:
-        raise ValidationError("User must be an agent to be assigned a gig.")
+        raise ValidationError("Agent must be an actual agent in app.")
 
 
 def validate_start_end_datetime(start_datetime, end_datetime):
@@ -37,6 +37,15 @@ def validate_location_fields(location_type, venue, location):
     """
     Validate that the venue and location are provided for physical and hybrid gigs.
     """
+
+    if location_type == "virtual":
+        if venue or location:
+            raise ValidationError(
+                {
+                    "location_type": "Venue and location are not appropriate for virtual gigs."
+                }
+            )
+
     if location_type in ["physical", "hybrid"]:
         if not venue:
             raise ValidationError(
