@@ -1,6 +1,5 @@
 import uuid
 
-from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
 from taggit.managers import TaggableManager
@@ -18,35 +17,6 @@ class UUIDTaggedItem(GenericUUIDTaggedItemBase, TaggedItemBase):
     """
 
     pass
-
-
-class GigManager(models.Manager):
-    """
-    Custom manager for Gig model.
-    """
-
-    def create(self, **kwargs):
-        """
-        Custom method to ensure proper validation during gig creation.
-        Ensures that the gig is created with a valid status(draft/published) and no agent assigned.
-        """
-        # Ensure initial status is either only 'draft' or 'published'
-        status = kwargs.get("status")
-        if status not in ["draft", "published"]:
-            raise ValidationError(
-                {
-                    "status": "New gigs can only be created with 'draft' or 'published' status"
-                }
-            )
-
-        # Ensure agent is not assigned during gig creation
-        agent = kwargs.get("agent")
-        if agent is not None:
-            raise ValidationError(
-                {"agent": "Agent cannot be assigned during gig creation"}
-            )
-
-        return super().create(**kwargs)
 
 
 class Gig(models.Model):
@@ -113,8 +83,6 @@ class Gig(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    objects = GigManager()
 
     class Meta:
         db_table = "gigs"

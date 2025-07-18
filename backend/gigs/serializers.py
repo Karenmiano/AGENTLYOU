@@ -32,6 +32,19 @@ class GigSerializer(TaggitSerializer, serializers.ModelSerializer):
             "updated_at",
         ]
 
+    read_only_fields = ["client", "agent"]
+
+    def validate_status(self, value):
+        # Ensures that the gig is created with a valid status(draft/published)
+        if self.instance is None:
+            if value not in ["draft", "published"]:
+                raise serializers.ValidationError(
+                    {
+                        "status": "New gigs can only be created with 'draft' or 'published' status"
+                    }
+                )
+        return value
+
     def validate(self, data):
         validate_start_end_datetime(
             data.get("start_datetime"), data.get("end_datetime")
@@ -47,9 +60,4 @@ class GigSerializer(TaggitSerializer, serializers.ModelSerializer):
             location = validated_data.pop("location")
             location, _ = Location.objects.get_or_create(**location)
             validated_data["location"] = location
-        try:
-            gig = Gig.objects.create(**validated_data)
-        except DjangoValidationError as e:
-            raise serializers.ValidationError(e.message_dict)
-
-        return gig
+        return super().create(validated_data)
