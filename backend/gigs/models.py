@@ -1,5 +1,6 @@
 import uuid
 
+from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
 from taggit.managers import TaggableManager
@@ -8,6 +9,8 @@ from taggit.models import GenericUUIDTaggedItemBase, TaggedItemBase
 from gigs.validators import (
     validate_client,
     validate_agent,
+    validate_start_end_datetime,
+    validate_location_fields,
 )
 
 
@@ -78,6 +81,7 @@ class Gig(models.Model):
         on_delete=models.SET_NULL,
         related_name="agent_gigs",
         null=True,
+        blank=True,
         validators=[validate_agent],
     )
 
@@ -86,6 +90,33 @@ class Gig(models.Model):
 
     class Meta:
         db_table = "gigs"
+
+    def publish(self):
+        """
+        Publish the gig, setting its status to 'published'.
+        Only gigs with status 'draft' can be published.
+        Otherwise a ValidationError is raised.
+        """
+        if self.status != "draft":
+            raise ValidationError(
+                {"status": "Only gigs with status 'draft' can be published."}
+            )
+
+        self.status = "published"
+        self.save()
+
+    def clean(self):
+        """
+        Validate model fields.
+        Ensures:
+        - Start datetime is in the future.
+        - End datetime is after start datetime.
+        - Location fields are valid based on location type.
+        """
+        super().clean()
+
+        validate_start_end_datetime(self.start_datetime, self.end_datetime)
+        validate_location_fields(self.location_type, self.venue, self.location)
 
     def __str__(self):
         return self.title

@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
+    "drf_spectacular",
     "corsheaders",
     "taggit",
     "core",
@@ -122,6 +123,16 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.BasicAuthentication",
     ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+
+# Spectacular settings
+SPECTACULAR_SETTINGS = {
+    "TITLE": "AGENTLYOU API",
+    "DESCRIPTION": "Agentlyou is a presence as a service platform that allows clients to hire agents to attend events or appointments on their behalf. Whether it's a conference, wedding, interview, or trade fair — Agentlyou connects people with reliable proxies.",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
 }
 
 # JWT Configuration

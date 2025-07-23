@@ -1,4 +1,3 @@
-from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 from taggit.serializers import TaggitSerializer, TagListSerializerField
 
@@ -9,8 +8,13 @@ from core.serializers import LocationSerializer
 
 
 class GigSerializer(TaggitSerializer, serializers.ModelSerializer):
-    location = LocationSerializer(required=False)
     event_label = TagListSerializerField()
+    location = LocationSerializer(required=False)
+    status = serializers.ChoiceField(
+        ["draft", "published"],
+        default="draft",
+        help_text="Status of the gig. Can be 'draft' or 'published' during creation. Cannot be updated directly.",
+    )
 
     class Meta:
         model = Gig
@@ -31,21 +35,29 @@ class GigSerializer(TaggitSerializer, serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+        read_only_fields = ["client", "agent"]
 
-    read_only_fields = ["client", "agent"]
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize the serializer instance.
 
-    def validate_status(self, value):
-        # Ensures that the gig is created with a valid status(draft/published)
-        if self.instance is None:
-            if value not in ["draft", "published"]:
-                raise serializers.ValidationError(
-                    {
-                        "status": "New gigs can only be created with 'draft' or 'published' status"
-                    }
-                )
-        return value
+        Set status to read-only during updates. Status updates depend on other fields and
+        code paths hence will be set using model methods to ensure data integrity.
+        """
+        super().__init__(*args, **kwargs)
+
+        if self.instance:
+            self.fields["status"].read_only = True
 
     def validate(self, data):
+        """
+        Object-level validation for the gig.
+
+        Ensures:
+        - Start datetime is in the future.
+        - End datetime is after start datetime.
+        - Location fields are valid based on location type.
+        """
         validate_start_end_datetime(
             data.get("start_datetime"), data.get("end_datetime")
         )
@@ -56,8 +68,18 @@ class GigSerializer(TaggitSerializer, serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
+        """
+        Create a new gig instance.
+        """
         if validated_data.get("location"):
             location = validated_data.pop("location")
             location, _ = Location.objects.get_or_create(**location)
             validated_data["location"] = location
         return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        if validated_data.get("location"):
+            location = validated_data.pop("location")
+            location, _ = Location.objects.get_or_create(**location)
+            validated_data["location"] = location
+        return super().update(instance, validated_data)

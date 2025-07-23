@@ -1,0 +1,326 @@
+openapi: 3.0.3
+info:
+  title: AGENTLYOU API
+  version: 1.0.0
+  description: Agentlyou is a presence as a service platform that allows clients to
+    hire agents to attend events or appointments on their behalf. Whether it's a conference,
+    wedding, interview, or trade fair — Agentlyou connects people with reliable proxies.
+paths:
+  /api/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPair'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTokenObtainPair'
+          description: ''
+  /api/auth/logout/:
+    post:
+      operationId: auth_logout_create
+      description: |-
+        View for logging out a user.
+        Logs out the user by blacklisting the refresh token.
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/refresh/:
+    post:
+      operationId: auth_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/auth/register/:
+    post:
+      operationId: auth_register_create
+      description: |-
+        View for registering a new user.
+        Immediately logs them in and returns token pair for the user.
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/gigs/{id}/edit/:
+    put:
+      operationId: gigs_edit_update
+      description: |-
+        Update an existing gig.
+
+        Status field can't be updated using this path.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - gigs
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Gig'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Gig'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Gig'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Gig'
+          description: ''
+  /api/gigs/{id}/publish/:
+    get:
+      operationId: gigs_publish_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - gigs
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/gigs/new/:
+    post:
+      operationId: gigs_new_create
+      description: Create a new gig.
+      tags:
+      - gigs
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Gig'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Gig'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Gig'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Gig'
+          description: ''
+components:
+  schemas:
+    CustomTokenObtainPair:
+      type: object
+      description: Custom serializer for handling JWT token generation with user role
+        information.
+      properties:
+        email:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - password
+    Gig:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        event_label:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+          minLength: 50
+        location_type:
+          $ref: '#/components/schemas/LocationTypeEnum'
+        venue:
+          type: string
+          maxLength: 255
+        location:
+          $ref: '#/components/schemas/Location'
+        start_datetime:
+          type: string
+          format: date-time
+        end_datetime:
+          type: string
+          format: date-time
+        compensation:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,15}(?:\.\d{0,4})?$
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          default: draft
+        client:
+          type: string
+          format: uuid
+          readOnly: true
+        agent:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - agent
+      - client
+      - compensation
+      - created_at
+      - description
+      - end_datetime
+      - event_label
+      - id
+      - location_type
+      - start_datetime
+      - title
+      - updated_at
+    Location:
+      type: object
+      description: Serializer for the Location model.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        city:
+          type: string
+          maxLength: 255
+        state_region:
+          type: string
+          default: ''
+          maxLength: 255
+        country:
+          type: string
+          maxLength: 255
+      required:
+      - city
+      - country
+      - id
+    LocationTypeEnum:
+      enum:
+      - virtual
+      - physical
+      - hybrid
+      type: string
+      description: |-
+        * `virtual` - Virtual
+        * `physical` - Physical
+        * `hybrid` - Hybrid
+    StatusEnum:
+      enum:
+      - draft
+      - published
+      type: string
+      description: |-
+        * `draft` - draft
+        * `published` - published
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

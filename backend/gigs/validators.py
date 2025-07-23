@@ -1,12 +1,14 @@
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from users.models import CustomUser
 
 
 def validate_client(value):
     """
     Custom validator to ensure the user is a client.
     """
-    if not value.is_client:
+    client = CustomUser.objects.get(pk=value)
+    if not client.is_client:
         raise ValidationError("Client must be an actual client in app.")
 
 
@@ -14,7 +16,8 @@ def validate_agent(value):
     """
     Custom validator to ensure the user is an agent.
     """
-    if not value.is_agent:
+    agent = CustomUser.objects.get(pk=value)
+    if not agent.is_agent:
         raise ValidationError("Agent must be an actual agent in app.")
 
 
@@ -35,7 +38,9 @@ def validate_start_end_datetime(start_datetime, end_datetime):
 
 def validate_location_fields(location_type, venue, location):
     """
-    Validate that the venue and location are provided for physical and hybrid gigs.
+    Validate location fields based on location type.
+    - For virtual gigs, venue and location should not be provided.
+    - For physical and hybrid gigs, venue and location must be provided.
     """
 
     if location_type == "virtual":
