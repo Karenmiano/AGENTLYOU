@@ -64,7 +64,7 @@ class Gig(models.Model):
     compensation = models.DecimalField(max_digits=19, decimal_places=4)
 
     status = models.CharField(
-        max_length=255,
+        max_length=30,
         choices=STATUS_CHOICES,
         default="draft",
     )
