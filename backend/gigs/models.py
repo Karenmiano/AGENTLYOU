@@ -1,7 +1,8 @@
 import uuid
+from decimal import Decimal
 
 from django.core.exceptions import ValidationError
-from django.core.validators import MinLengthValidator
+from django.core.validators import MinLengthValidator, MinValueValidator
 from django.db import models
 from taggit.managers import TaggableManager
 from taggit.models import GenericUUIDTaggedItemBase, TaggedItemBase
@@ -61,7 +62,9 @@ class Gig(models.Model):
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
 
-    compensation = models.DecimalField(max_digits=19, decimal_places=4)
+    compensation = models.DecimalField(
+        max_digits=12, decimal_places=2, validators=[MinValueValidator(Decimal("0.01"))]
+    )
 
     status = models.CharField(
         max_length=30,
