@@ -44,7 +44,7 @@ class Gig(models.Model):
     title = models.CharField(max_length=255)
     event_label = TaggableManager(through=UUIDTaggedItem, verbose_name="Event Label")
     description = models.TextField(
-        validators=[MinLengthValidator(50, "Must be atleast 50 characters long.")]
+        validators=[MinLengthValidator(50, "Must be atleast 50 characters long")]
     )
 
     # location
@@ -102,7 +102,7 @@ class Gig(models.Model):
         """
         if self.status != "draft":
             raise ValidationError(
-                {"status": "Only gigs with status 'draft' can be published."}
+                {"status": "Only gigs with status 'draft' can be published"}
             )
 
         self.status = "published"

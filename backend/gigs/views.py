@@ -32,9 +32,10 @@ class GigCreateView(generics.CreateAPIView):
 class GigUpdateView(generics.UpdateAPIView):
     """
     Update an existing gig.
+    Only put updates are allowed for efficient validation of fields because most are dependent on each other.
     Clients can update their gigs if they are in 'draft' or 'published' status, otherwise
     they cannot modify the gig.
-    Status updates cannot be done directly through this endpoint.
+    Status updates through this endpoint will be ignored.
     """
 
     queryset = Gig.objects.all()
@@ -64,4 +65,4 @@ class PublishGig(APIView):
         except DjangoValidationError as e:
             return Response(e.message_dict, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"detail": "Gig published successfully."})
+        return Response({"detail": "Gig published successfully"})

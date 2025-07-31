@@ -9,11 +9,11 @@ from core.serializers import LocationSerializer
 
 class GigSerializer(TaggitSerializer, serializers.ModelSerializer):
     event_label = TagListSerializerField()
-    location = LocationSerializer(required=False)
+    location = LocationSerializer(required=False, allow_null=True)
     status = serializers.ChoiceField(
         ["draft", "published"],
         default="draft",
-        help_text="Status of the gig. Can be 'draft' or 'published' during creation. Cannot be updated directly.",
+        help_text="Status of the gig. Can be 'draft' or 'published' during creation. Direct updates will be ignored.",
     )
 
     class Meta:
