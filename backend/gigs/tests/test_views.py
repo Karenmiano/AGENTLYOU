@@ -61,7 +61,7 @@ class GigCreateViewTests(APITestCase):
         response = self.client.post(self.url, invalid_data_description)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
-            response.data["description"][0], "Must be atleast 50 characters long"
+            response.data["description"][0], "Must be at least 50 characters long"
         )
 
 
@@ -253,7 +253,6 @@ class PublishGigViewTests(APITestCase):
         )
 
     def test_client_must_be_gig_owner_to_publish(self):
-        pass
         another_client = UserFactory(default_role="client")
         self.client.force_authenticate(user=another_client)
         response = self.client.get(self.url)
