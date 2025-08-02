@@ -7,13 +7,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gigs', '0010_merge_20250730_1527'),
+        ("gigs", "0010_merge_20250730_1527"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='gig',
-            name='description',
-            field=models.TextField(validators=[django.core.validators.MinLengthValidator(50, 'Must be atleast 50 characters long')]),
+            model_name="gig",
+            name="description",
+            field=models.TextField(
+                validators=[
+                    django.core.validators.MinLengthValidator(
+                        50, "Must be atleast 50 characters long"
+                    )
+                ]
+            ),
         ),
     ]
