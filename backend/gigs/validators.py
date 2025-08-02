@@ -44,11 +44,13 @@ def validate_location_fields(location_type, venue, location):
     """
 
     if location_type == "virtual":
-        if venue or location:
+        if venue:
             raise ValidationError(
-                {
-                    "location_type": "Venue and location are not appropriate for virtual gigs."
-                }
+                {"venue": "Venue is not appropriate for virtual gigs."}
+            )
+        if location:
+            raise ValidationError(
+                {"location": "Location is not appropriate for virtual gigs."}
             )
 
     if location_type in ["physical", "hybrid"]:
