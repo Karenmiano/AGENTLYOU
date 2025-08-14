@@ -99,7 +99,7 @@ function SignUpForm() {
   }
 
   return signUpRole ? (
-    <div className="px-5 mx-auto mb-10 mt-2 max-w-[550px] sm:px-0">
+    <div className="px-4 mx-auto mb-10 mt-2 max-w-[550px] sm:px-0">
       <button
         type="button"
         aria-label="Back"
@@ -206,7 +206,8 @@ function SignUpForm() {
 
             <div className="mb-3">
               <AuthFormLabel htmlFor="STR">
-                State/ Region<span className="text-gray-500">(optional)</span>
+                State/ Region
+                <span className="text-gray-500">(optional)</span>
               </AuthFormLabel>
               <AuthFormInput
                 type="text"
@@ -265,7 +266,7 @@ function SignUpForm() {
         </div>
 
         <button
-          className="flex items-center justify-center w-full rounded-full hover:bg-primary bg-primary/90 py-3 font-semibold text-white outline-none transition-colors"
+          className="flex items-center justify-center w-full rounded-full hover:bg-primary bg-primary/90 py-3 font-semibold text-white outline-none transition-colors cursor-pointer"
           type="submit"
           disabled={isSubmitting}
         >
