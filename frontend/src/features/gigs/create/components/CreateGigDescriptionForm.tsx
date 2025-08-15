@@ -49,7 +49,7 @@ function CreateGigDescriptionForm() {
       ...createGigData,
       description: data.description,
     }));
-    navigate("/gigs/new/labels");
+    navigate("/gigs/new/label");
   }
 
   return (
