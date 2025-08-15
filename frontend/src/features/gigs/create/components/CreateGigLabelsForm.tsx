@@ -35,10 +35,10 @@ function Label({
 }) {
   return (
     <li
-      className="flex items-center px-3 py-1.5 rounded-full border border-gray-500 gap-1.5 cursor-pointer hover:bg-gray-200 capitalize"
+      className="flex items-center px-3 py-1.5 rounded-full border border-gray-500 gap-1.5 cursor-pointer hover:bg-gray-200 capitalize active:bg-gray-300"
       onClick={onClick}
     >
-      <span className="text-xs">{label}</span>
+      <span className="text-sm">{label}</span>
       {icon}
     </li>
   );
