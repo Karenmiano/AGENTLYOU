@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Outlet } from "react-router";
 
+import ClientNav from "../../../../ui/ClientNav";
 import { useLocalStorageState } from "../../../../hooks/useLocalStorageState";
 import type { CreateGigData } from "../types";
-import ClientNav from "../../../../ui/ClientNav";
 
 function CreateGigLayout() {
   const [createGigData, setCreateGigData] = useLocalStorageState<CreateGigData>(

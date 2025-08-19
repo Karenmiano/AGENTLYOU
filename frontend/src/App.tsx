@@ -36,6 +36,7 @@ function App() {
                   element={<CreateGigDescriptionPage />}
                 />
                 <Route path="label" element={<CreateGigLabelsPage />} />
+                <Route path="location" element={<p>Location</p>} />
               </Route>
             </Route>
           </Route>

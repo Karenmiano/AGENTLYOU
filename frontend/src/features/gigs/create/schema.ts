@@ -10,7 +10,7 @@ export const createGigSchema = z.object({
     .string()
     .nonempty("Description is required")
     .min(50, "Description must be at least 50 characters long"),
-  venue: z.string(),
+  labels: z.array(z.string()).min(1, "At least one label is required"),
 });
 
 export type TCreateGigSchema = z.infer<typeof createGigSchema>;
