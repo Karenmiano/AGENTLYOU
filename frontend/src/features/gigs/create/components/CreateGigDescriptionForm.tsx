@@ -1,5 +1,4 @@
 import { z } from "zod/v4";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router";
@@ -10,7 +9,6 @@ import StepNavigation from "./StepNavigation";
 import InputError from "../../../../ui/InputError";
 
 import { useCreateGig } from "../hooks/useCreateGig";
-import { getLastIncompleteGigStep } from "../helpers";
 import { createGigSchema } from "../schema";
 
 const createGigDescriptionSchema = createGigSchema.pick({
@@ -30,19 +28,7 @@ function CreateGigDescriptionForm() {
   });
   const navigate = useNavigate();
 
-  const { createGigData, setCreateGigData, setStep } = useCreateGig();
-
-  useEffect(
-    function () {
-      const lastIncompleteStep = getLastIncompleteGigStep(2, createGigData);
-      if (lastIncompleteStep) {
-        navigate(lastIncompleteStep);
-        return;
-      }
-      setStep(2);
-    },
-    [setStep, createGigData, navigate]
-  );
+  const { createGigData, setCreateGigData } = useCreateGig();
 
   function onSubmit(data: TCreateGigDescriptionSchema) {
     setCreateGigData((createGigData) => ({

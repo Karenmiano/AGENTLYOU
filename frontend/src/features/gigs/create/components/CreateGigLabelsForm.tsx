@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { HiOutlinePlus } from "react-icons/hi";
 import { HiX } from "react-icons/hi";
@@ -6,7 +6,6 @@ import { HiX } from "react-icons/hi";
 import StepNavigation from "./StepNavigation";
 
 import { useCreateGig } from "../hooks/useCreateGig";
-import { getLastIncompleteGigStep } from "../helpers";
 
 const labels = [
   { name: "networking", isSelected: false },
@@ -47,7 +46,7 @@ function Label({
 }
 
 function CreateGigLabelsForm() {
-  const { setStep, setCreateGigData, createGigData } = useCreateGig();
+  const { setCreateGigData, createGigData } = useCreateGig();
 
   const [appLabels, setAppLabels] = useState(() => {
     const submittedLabels = createGigData.labels || [];
@@ -78,18 +77,6 @@ function CreateGigLabelsForm() {
     ...appLabels.filter((l) => l.isSelected).map((l) => l.name),
     ...customLabels,
   ];
-
-  useEffect(
-    function () {
-      const lastIncompleteStep = getLastIncompleteGigStep(3, createGigData);
-      if (lastIncompleteStep) {
-        navigate(lastIncompleteStep);
-        return;
-      }
-      setStep(3);
-    },
-    [createGigData, navigate, setStep]
-  );
 
   function selectAppLabel(label: string) {
     setAppLabels((prev) =>

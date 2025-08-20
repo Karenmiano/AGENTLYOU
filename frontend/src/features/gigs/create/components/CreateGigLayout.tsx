@@ -1,8 +1,9 @@
-import { useState } from "react";
-import { Outlet } from "react-router";
+import { useState, useEffect } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router";
 
 import ClientNav from "../../../../ui/ClientNav";
 import { useLocalStorageState } from "../../../../hooks/useLocalStorageState";
+import { getLastIncompleteGigStep } from "../helpers";
 import type { CreateGigData } from "../types";
 
 function CreateGigLayout() {
@@ -11,6 +12,42 @@ function CreateGigLayout() {
     "create-gig-data"
   );
   const [step, setStep] = useState(1);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(
+    function () {
+      const path = location.pathname;
+      switch (path) {
+        case "/gigs/new/title":
+          setStep(1);
+          break;
+        case "/gigs/new/description":
+          setStep(2);
+          break;
+        case "/gigs/new/label":
+          setStep(3);
+          break;
+        case "/gigs/new/location":
+          setStep(4);
+          break;
+      }
+    },
+    [location.pathname]
+  );
+
+  useEffect(
+    function () {
+      if (step === 1) return;
+      const lastIncompleteStep = getLastIncompleteGigStep(step, createGigData);
+      if (lastIncompleteStep) {
+        navigate(lastIncompleteStep);
+        return;
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [step]
+  );
 
   return (
     <>

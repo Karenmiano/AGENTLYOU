@@ -1,5 +1,4 @@
 import { z } from "zod/v4";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router";
@@ -26,15 +25,8 @@ function CreateGigTitleForm() {
     resolver: zodResolver(createGigTitleSchema),
     mode: "onChange",
   });
-  const { createGigData, setCreateGigData, setStep } = useCreateGig();
+  const { createGigData, setCreateGigData } = useCreateGig();
   const navigate = useNavigate();
-
-  useEffect(
-    function () {
-      setStep(1);
-    },
-    [setStep]
-  );
 
   function onSubmit(data: TCreateGigTitleSchema) {
     setCreateGigData((createGigData) => ({
@@ -56,7 +48,6 @@ function CreateGigTitleForm() {
             {...register("title")}
             className="w-full rounded-md border border-gray-300 px-4 py-2 outline-offset-4 text-sm"
             defaultValue={createGigData.title}
-            required={true}
           />
           {errors.title && <InputError>{errors.title.message}</InputError>}
         </div>
