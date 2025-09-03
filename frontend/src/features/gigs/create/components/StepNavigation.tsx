@@ -14,7 +14,7 @@ function StepNavigation({
   const { step } = useCreateGig();
 
   return (
-    <div className="fixed h-20 items-center justify-between flex bottom-0 left-4 right-4 bg-white">
+    <div className="fixed h-20 items-center justify-between flex bottom-0 left-0 right-0 bg-white px-5">
       <button
         className={`rounded-full text-primary py-3  px-5  border-2 border-gray-300 cursor-pointer hover:bg-gray-100 ${
           step === 1 ? "invisible" : ""

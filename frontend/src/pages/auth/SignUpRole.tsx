@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import { Link, useNavigate } from "react-router";
 import { HiOutlineBriefcase } from "react-icons/hi2";
 import { HiOutlineUser } from "react-icons/hi2";

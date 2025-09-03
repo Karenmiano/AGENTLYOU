@@ -13,10 +13,9 @@ export type Role = "client" | "agent";
 export const signUpSchema = z
   .object({
     fullName: z.string().min(1, { error: "Full Name is required" }),
-    email: z
-      .string()
-      .min(1, { error: "Email is required" })
-      .email("Invalid email format"),
+    email: z.email({
+      error: (issue) => (issue.input === "" ? "Email is required" : undefined),
+    }),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters")

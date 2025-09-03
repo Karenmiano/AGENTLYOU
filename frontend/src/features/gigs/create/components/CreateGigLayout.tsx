@@ -52,11 +52,7 @@ function CreateGigLayout() {
   return (
     <>
       <ClientNav />
-      <progress
-        max="6"
-        value={step}
-        className="w-full h-1 [&::-webkit-progress-bar]:bg-gray-100 [&::-webkit-progress-value]:bg-gray-950 [&::-webkit-progress-value]:rounded-full bg-gray-100 [&::-moz-progress-bar]:bg-gray-950 [&::-moz-progress-bar]:rounded-full mb-5"
-      ></progress>
+      <progress max="6" value={step} className="progress-bar"></progress>
       <div className="px-4 max-w-5xl mx-auto mb-22">
         <div className="text-gray-500 font-light mb-5">Step {step} of 6</div>
         <div className="grid grid-cols-1 md:grid-cols-2">

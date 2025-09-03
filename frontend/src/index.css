@@ -3,5 +3,9 @@
 
 @theme {
   --font-sans: "Inter", sans-serif;
-  --color-primary: #432dd7;
+  --color-primary: hsl(248 68% 51%);
+}
+
+.progress-bar {
+  @apply w-full h-1 [&::-webkit-progress-bar]:bg-gray-100 [&::-webkit-progress-value]:bg-gray-950 [&::-webkit-progress-value]:rounded-full bg-gray-100 [&::-moz-progress-bar]:bg-gray-950 [&::-moz-progress-bar]:rounded-full mb-5 [&::-webkit-progress-value]:transition-[width] [&::-webkit-progress-value]:ease-out [&::-webkit-progress-value]:duration-300 [&::-moz-progress-bar]:transition-[width] [&::-moz-progress-bar]:ease-out [&::-moz-progress-bar]:duration-300;
 }
