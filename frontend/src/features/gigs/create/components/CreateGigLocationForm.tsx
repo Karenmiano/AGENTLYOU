@@ -80,8 +80,31 @@ function CreateGigLocationForm() {
 
   const locationType = watch("location.locationType");
 
+  function getCountryStateCityDefaults() {
+    if (
+      createGigData.location?.locationType === "physical" ||
+      createGigData.location?.locationType === "hybrid"
+    ) {
+      return {
+        country: createGigData.location.location.country,
+        state: createGigData.location.location.stateRegion,
+        city: createGigData.location.location.city,
+      };
+    }
+    return { country: "", state: "", city: "" };
+  }
+
+  function getVenueDefault() {
+    if (
+      createGigData.location?.locationType === "physical" ||
+      createGigData.location?.locationType === "hybrid"
+    ) {
+      return createGigData.location.venue;
+    }
+    return "";
+  }
+
   function onSubmit(data: TCreateGigLocationSchema) {
-    console.log(data);
     setCreateGigData((createGigData) => ({
       ...createGigData,
       location: data.location,
@@ -155,7 +178,7 @@ function CreateGigLocationForm() {
               id="venue"
               {...register("location.venue")}
               className="w-full rounded-md border border-gray-300 px-4 py-2 outline-offset-4 text-sm"
-              defaultValue={createGigData.location?.venue}
+              defaultValue={getVenueDefault()}
             />
 
             {inPersonErrors.location?.venue && (
@@ -169,11 +192,7 @@ function CreateGigLocationForm() {
               state: "location.location.stateRegion",
               city: "location.location.city",
             }}
-            fieldDefaultValues={{
-              country: createGigData.location?.location?.country,
-              state: createGigData.location?.location?.stateRegion,
-              city: createGigData.location?.location?.city,
-            }}
+            fieldDefaultValues={getCountryStateCityDefaults()}
             resetField={resetField}
           >
             <div className="grid grid-cols-2 gap-3">
