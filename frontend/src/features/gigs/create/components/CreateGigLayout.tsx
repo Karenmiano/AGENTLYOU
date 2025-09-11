@@ -28,7 +28,7 @@ function CreateGigLayout() {
         case "/gigs/new/label":
           setStep(3);
           break;
-        case "/gigs/new/location":
+        case "/gigs/new/location&time":
           setStep(4);
           break;
       }
@@ -54,7 +54,7 @@ function CreateGigLayout() {
       <ClientNav />
       <progress max="6" value={step} className="progress-bar"></progress>
       <div className="px-4 max-w-5xl mx-auto mb-22">
-        <div className="text-gray-500 font-light mb-5">Step {step} of 6</div>
+        <div className="text-gray-500 font-light mb-5">Step {step} of 5</div>
         <div className="grid grid-cols-1 md:grid-cols-2">
           <img
             src="/src/assets/stepper.svg"

@@ -116,7 +116,7 @@ function CreateGigLabelsForm() {
       ...createGigData,
       labels: selectedLabels,
     }));
-    navigate("/gigs/new/location");
+    navigate("/gigs/new/location&time");
   }
 
   return (
@@ -187,7 +187,7 @@ function CreateGigLabelsForm() {
           navigate("/gigs/new/description");
         }}
         isValid={selectedLabels.length > 0}
-        nextStepName="Location"
+        nextStepName="Location & Time"
       />
     </form>
   );

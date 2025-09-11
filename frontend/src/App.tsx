@@ -9,7 +9,7 @@ import CreateGigLayout from "./features/gigs/create/components/CreateGigLayout";
 import CreateGigTitlePage from "./pages/gigs/create/CreateGigTitlePage";
 import CreateGigDescriptionPage from "./pages/gigs/create/CreateGigDescriptionPage";
 import CreateGigLabelsPage from "./pages/gigs/create/CreateGigLabelsPage";
-import CreateGigLocationPage from "./pages/gigs/create/CreateGigLocationPage";
+import CreateGigLocationAndTimePage from "./pages/gigs/create/CreateGigLocationAndTimePage";
 
 function App() {
   return (
@@ -37,7 +37,10 @@ function App() {
                   element={<CreateGigDescriptionPage />}
                 />
                 <Route path="label" element={<CreateGigLabelsPage />} />
-                <Route path="location" element={<CreateGigLocationPage />} />
+                <Route
+                  path="location&time"
+                  element={<CreateGigLocationAndTimePage />}
+                />
               </Route>
             </Route>
           </Route>
