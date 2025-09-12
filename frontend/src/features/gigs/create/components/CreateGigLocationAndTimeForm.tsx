@@ -1,10 +1,11 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
 import { HiOutlineLocationMarker } from "react-icons/hi";
 
 import StepNavigation from "./StepNavigation";
 import Modal from "../../../../ui/Modal";
+import SegmentedControl from "../../../../ui/SegmentedControl";
 import { useAutoCompleteSuggestions } from "../hooks/useAutoCompleteSuggestions";
 
 import type { FormEvent } from "react";
@@ -57,7 +58,20 @@ function CreateGigLocationAndTimeForm() {
           </div>
         </Modal.Open>
         <Modal.Window name="select-location">
-          <p>Event type will be here</p>
+          <SegmentedControl
+            name="group-1"
+            callback={(val) => console.log(val)}
+            defaultIndex={0}
+            controlRef={useRef(null)}
+            segments={[
+              {
+                label: "Physical event",
+                value: "physical",
+                ref: useRef(null),
+              },
+              { label: "Online event", value: "virtual", ref: useRef(null) },
+            ]}
+          />
         </Modal.Window>
       </Modal>
 

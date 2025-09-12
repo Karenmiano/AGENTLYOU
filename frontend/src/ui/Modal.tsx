@@ -71,7 +71,7 @@ function Window({ name, children }: WindowProps) {
     <Overlay>
       <div
         ref={ref}
-        className="fixed top-1/2 left-1/2  rounded-lg bg-white shadow-lg p-6"
+        className="fixed top-1/2 left-1/2  rounded-lg bg-white shadow-lg p-6 -translate-1/2"
       >
         <div>{cloneElement(children, { onCloseModal: close })} </div>
       </div>
