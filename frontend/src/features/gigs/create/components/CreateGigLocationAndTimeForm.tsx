@@ -4,6 +4,7 @@ import { useMapsLibrary } from "@vis.gl/react-google-maps";
 import { HiOutlineLocationMarker } from "react-icons/hi";
 
 import StepNavigation from "./StepNavigation";
+import Modal from "../../../../ui/Modal";
 import { useAutoCompleteSuggestions } from "../hooks/useAutoCompleteSuggestions";
 
 import type { FormEvent } from "react";
@@ -45,13 +46,20 @@ function CreateGigLocationAndTimeForm() {
         When and where should the agent show up?
       </h1>
 
-      <div className="flex bg-gray-100 p-4 rounded-xl gap-2 text-gray-900 hover:bg-gray-200">
-        <HiOutlineLocationMarker className="size-5 mt-1" />
-        <div>
-          <p className="font-medium">Add Event Location</p>
-          <p className="text-sm">Physical or online location</p>
-        </div>
-      </div>
+      <Modal>
+        <Modal.Open opens="select-location">
+          <div className="flex bg-gray-100 p-4 rounded-xl gap-2 text-gray-900 hover:bg-gray-200">
+            <HiOutlineLocationMarker className="size-5 mt-1" />
+            <div>
+              <p className="font-medium">Add Event Location</p>
+              <p className="text-sm">Physical or online location</p>
+            </div>
+          </div>
+        </Modal.Open>
+        <Modal.Window name="select-location">
+          <p>Event type will be here</p>
+        </Modal.Window>
+      </Modal>
 
       <div className="hidden">
         <input
