@@ -18,7 +18,7 @@ interface OpenProps {
 
 interface WindowProps {
   name: string;
-  children: React.ReactElement<{ onCloseModal: () => void }>;
+  children: React.ReactElement<{ closeModal: () => void }>;
 }
 
 const ModalContext = createContext<ModalContextType | null>(null);
@@ -71,9 +71,9 @@ function Window({ name, children }: WindowProps) {
     <Overlay>
       <div
         ref={ref}
-        className="fixed top-1/2 left-1/2  rounded-lg bg-white shadow-lg p-6 -translate-1/2"
+        className="fixed top-24 left-5 right-5 rounded-lg bg-white p-4 border border-gray-300 shadow-strong"
       >
-        <div>{cloneElement(children, { onCloseModal: close })} </div>
+        <div>{cloneElement(children, { closeModal: close })} </div>
       </div>
     </Overlay>,
     document.body

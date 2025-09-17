@@ -5,6 +5,7 @@ interface SegmentedControlProps {
   segments: {
     label: string;
     value: string;
+    icon?: React.ReactNode;
     ref: React.RefObject<HTMLDivElement | null>;
   }[];
   callback: (value: string) => void;
@@ -62,7 +63,10 @@ function SegmentedControl({
               onChange={() => onInputChange(item.value, i)}
               checked={i === activeIndex}
             />
-            <label htmlFor={item.label}>{item.label}</label>
+            <label htmlFor={item.label}>
+              {item.icon && <span>{item.icon}</span>}
+              {item.label}
+            </label>
           </div>
         ))}
       </div>
