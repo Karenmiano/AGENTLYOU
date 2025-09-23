@@ -115,7 +115,7 @@ function CreateGigLocationAndTimeForm() {
                 onChange={handleStartDateTimeChange}
                 customInput={<CustomDateInput />}
                 enableTabLoop={false}
-                minDate={new Date()} // can still pick from today
+                minDate={new Date()} // pick from today onwards
                 disabledKeyboardNavigation
               />
 
