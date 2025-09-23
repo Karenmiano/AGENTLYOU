@@ -55,12 +55,12 @@ function CreateGigLayout() {
       <progress max="6" value={step} className="progress-bar"></progress>
       <div className="px-4 max-w-5xl mx-auto mb-22">
         <div className="text-gray-500 font-light mb-5">Step {step} of 5</div>
-        <div className="grid grid-cols-1 md:grid-cols-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2">
           <img
             src="/src/assets/stepper.svg"
             alt="Person climbing staircase"
             width="375"
-            className="hidden md:block align-self-center justify-self-center scale-x-[-1]"
+            className="hidden lg:block align-self-center justify-self-center scale-x-[-1]"
           />
           <Outlet
             context={{ createGigData, setCreateGigData, setStep, step }}

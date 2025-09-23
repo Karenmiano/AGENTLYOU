@@ -79,3 +79,14 @@
 .controls.ready::before {
   transition: transform 0.3s ease, width 0.3s ease;
 }
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 1.25rem;
+  top: 2.3125rem;
+  bottom: 2.5rem;
+  width: 1px;
+  border-left: 1px dashed #9ca3af;
+}
+
