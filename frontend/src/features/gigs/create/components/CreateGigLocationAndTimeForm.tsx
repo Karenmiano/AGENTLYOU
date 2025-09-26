@@ -1,5 +1,5 @@
 import DOMPurify from "dompurify";
-import { format, add } from "date-fns";
+import { add, roundToNearestMinutes } from "date-fns";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import DatePicker from "react-datepicker";
@@ -20,14 +20,14 @@ interface CustomInputProps {
 }
 
 const CustomDateInput = ({ value, onClick, ref }: CustomInputProps) => {
-  const formattedDate = format(new Date(value!), "MMM d, yyyy");
   return (
     <div
+      role="button"
       className="bg-gray-200 p-2 mr-0.5 rounded-l-xl hover:bg-gray-300 transition-colors"
       onClick={onClick}
       ref={ref}
     >
-      {formattedDate}
+      {value}
     </div>
   );
 };
@@ -71,7 +71,12 @@ function CreateGigLocationAndTimeForm() {
   function handleStartDateTimeChange(date: Date | null) {
     if (!date) return;
 
-    const minStartDateTime = add(new Date(), { minutes: 30 });
+    const minStartDateTime = roundToNearestMinutes(
+      add(new Date(), { minutes: 30 }),
+      {
+        nearestTo: 15,
+      }
+    ); // at least 30 minutes from now, rounded to nearest 15 min to keep interval
     if (date < minStartDateTime) {
       date = minStartDateTime;
     }
@@ -79,7 +84,7 @@ function CreateGigLocationAndTimeForm() {
     setStartDateTime(date);
 
     const minEndDateTime = add(date, { minutes: 15 }); // 15 minute interval allowed
-    if (minEndDateTime > endDateTime) {
+    if (endDateTime < minEndDateTime) {
       setEndDateTime(add(date, { minutes: 30 })); // manually setting to 30 minutes after start time
     }
   }
@@ -114,6 +119,7 @@ function CreateGigLocationAndTimeForm() {
                 selected={startDateTime}
                 onChange={handleStartDateTimeChange}
                 customInput={<CustomDateInput />}
+                dateFormat="MMM d, yyyy"
                 enableTabLoop={false}
                 minDate={new Date()} // pick from today onwards
                 disabledKeyboardNavigation
@@ -133,7 +139,7 @@ function CreateGigLocationAndTimeForm() {
                   const selectedDateTime = new Date(time);
 
                   return (
-                    minStartDateTime.getTime() < selectedDateTime.getTime()
+                    selectedDateTime.getTime() > minStartDateTime.getTime()
                   );
                 }}
                 showTimeCaption={false}
@@ -152,6 +158,7 @@ function CreateGigLocationAndTimeForm() {
                 onChange={handleEndDateTimeChange}
                 customInput={<CustomDateInput />}
                 enableTabLoop={false}
+                dateFormat="MMM d, yyyy"
                 minDate={startDateTime}
                 disabledKeyboardNavigation
               />
@@ -168,7 +175,7 @@ function CreateGigLocationAndTimeForm() {
                 filterTime={(time) => {
                   const selectedDate = new Date(time);
 
-                  return startDateTime.getTime() < selectedDate.getTime();
+                  return selectedDate.getTime() > startDateTime.getTime();
                 }}
                 showTimeCaption={false}
                 enableTabLoop={false}
@@ -222,6 +229,18 @@ function CreateGigLocationAndTimeForm() {
           />
         </Modal.Window>
       </Modal>
+
+      {physicalLocation && (
+        <iframe
+          className="w-full border-none rounded-lg mt-4 h-48"
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          src={`https://www.google.com/maps/embed/v1/place?key=${
+            import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+          }
+    &q=place_id:${physicalLocation.id}`}
+        ></iframe>
+      )}
 
       <StepNavigation
         isValid={true}
