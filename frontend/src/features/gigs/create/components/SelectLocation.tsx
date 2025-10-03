@@ -8,14 +8,14 @@ import { LuSearchX } from "react-icons/lu";
 
 import SegmentedControl from "../../../../ui/SegmentedControl";
 import { useAutoCompleteSuggestions } from "../hooks/useAutoCompleteSuggestions";
-
 import type { Dispatch, SetStateAction } from "react";
+import type { PhysicalLocation } from "../types";
 
 interface SelectLocationProps {
   locationType: "virtual" | "physical";
   setLocationType: Dispatch<SetStateAction<"virtual" | "physical">>;
   setPhysicalLocation: Dispatch<
-    SetStateAction<google.maps.places.Place | null>
+    SetStateAction<PhysicalLocation | google.maps.places.Place | null>
   >;
   closeModal?: () => void;
 }
@@ -130,7 +130,7 @@ function SelectLocation({
       ) : (
         <div className="flex gap-2  bg-gray-100 rounded-md p-2 text-gray-600 mt-7">
           <HiOutlineInformationCircle className="flex-shrink-0 size-5 mt-0.5" />
-          <p>
+          <p className="text-sm">
             For virtual events you can share the link with the selected agent
             later
           </p>

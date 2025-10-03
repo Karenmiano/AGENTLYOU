@@ -9,6 +9,9 @@ import { HiOutlineGlobeAlt } from "react-icons/hi";
 import SelectLocation from "./SelectLocation";
 import StepNavigation from "./StepNavigation";
 import Modal from "../../../../ui/Modal";
+import { useCreateGig } from "../hooks/useCreateGig";
+import { getCityFromIanaTZ, IanaTZtoOffset } from "../../../../helpers";
+import type { PhysicalLocation } from "../types";
 
 import "react-datepicker/dist/react-datepicker.css";
 import "../../../../styles/datepicker.css";
@@ -19,35 +22,61 @@ interface CustomInputProps {
   ref?: React.Ref<HTMLDivElement>;
 }
 
-const CustomDateInput = ({ value, onClick, ref }: CustomInputProps) => {
+function extractLocation(
+  addressComponents: google.maps.places.AddressComponent[]
+) {
+  let country = "";
+  let stateRegion = "";
+  let city = "";
+
+  for (const comp of addressComponents) {
+    if (comp.types.includes("country")) {
+      country = comp.longText ?? "";
+    }
+    if (comp.types.includes("administrative_area_level_1")) {
+      stateRegion = comp.longText ?? "";
+    }
+    if (comp.types.includes("locality")) {
+      city = comp.longText ?? "";
+    }
+  }
+
+  return { country, stateRegion, city };
+}
+
+function CustomDateInput({ value, onClick, ref }: CustomInputProps) {
   return (
     <div
       role="button"
-      className="bg-gray-200 p-2 mr-0.5 rounded-l-xl hover:bg-gray-300 transition-colors"
+      className="bg-gray-200 p-2 mr-0.5 rounded-l-xl hover:bg-gray-300 transition-colors cursor-pointer"
       onClick={onClick}
       ref={ref}
     >
       {value}
     </div>
   );
-};
+}
 
-const CustomTimeInput = ({ value, onClick, ref }: CustomInputProps) => {
+function CustomTimeInput({ value, onClick, ref }: CustomInputProps) {
   return (
     <div
-      className="bg-gray-200 p-2 rounded-r-xl hover:bg-gray-300 transition-colors"
+      className="bg-gray-200 p-2 rounded-r-xl hover:bg-gray-300 transition-colors cursor-pointer"
       onClick={onClick}
       ref={ref}
     >
       {value}
     </div>
   );
-};
+}
 
 function CreateGigLocationAndTimeForm() {
-  const navigate = useNavigate();
+  const { createGigData, setCreateGigData } = useCreateGig();
 
   const [startDateTime, setStartDateTime] = useState(() => {
+    if (createGigData.startDateTime) {
+      return new Date(createGigData.startDateTime);
+    }
+
     // set default start date to 2 days from now at 9:00 AM
     const date = new Date();
     date.setDate(date.getDate() + 2);
@@ -55,6 +84,10 @@ function CreateGigLocationAndTimeForm() {
     return date;
   });
   const [endDateTime, setEndDateTime] = useState(() => {
+    if (createGigData.endDateTime) {
+      return new Date(createGigData.endDateTime);
+    }
+
     // set default end date to 2 days from now at 4:00 PM
     const date = new Date();
     date.setDate(date.getDate() + 2);
@@ -63,10 +96,32 @@ function CreateGigLocationAndTimeForm() {
   });
 
   const [locationType, setLocationType] = useState<"virtual" | "physical">(
-    "physical"
+    () => {
+      return createGigData.location?.locationType ?? "physical";
+    }
   );
-  const [physicalLocation, setPhysicalLocation] =
-    useState<google.maps.places.Place | null>(null);
+  const [physicalLocation, setPhysicalLocation] = useState<
+    google.maps.places.Place | PhysicalLocation | null
+  >(() => {
+    if (createGigData.location?.locationType === "physical") {
+      const venue = createGigData.location.venue;
+      return {
+        id: venue.google_place_id,
+        displayName: venue.name,
+        adrFormatAddress: venue.address,
+        geolocation: {
+          country: venue.location.country,
+          stateRegion: venue.location.stateRegion,
+          city: venue.location.city,
+        },
+      };
+    }
+    return null;
+  });
+
+  const navigate = useNavigate();
+
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   function handleStartDateTimeChange(date: Date | null) {
     if (!date) return;
@@ -100,8 +155,34 @@ function CreateGigLocationAndTimeForm() {
     setEndDateTime(date);
   }
 
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    setCreateGigData((createGigData) => ({
+      ...createGigData,
+      location:
+        locationType === "virtual"
+          ? { locationType: "virtual" }
+          : {
+              locationType: "physical",
+              venue: {
+                google_place_id: physicalLocation!.id,
+                name: physicalLocation!.displayName!,
+                address: physicalLocation!.adrFormatAddress!,
+                location:
+                  "geolocation" in physicalLocation!
+                    ? physicalLocation!.geolocation
+                    : extractLocation(physicalLocation!.addressComponents!),
+              },
+            },
+      startDateTime: startDateTime.toISOString(),
+      endDateTime: endDateTime.toISOString(),
+      timeZone,
+    }));
+  }
+
   return (
-    <form>
+    <form onSubmit={handleSubmit}>
       <h1 className="text-2xl mb-5 md:font-medium">
         When and where should the agent show up?
       </h1>
@@ -186,8 +267,10 @@ function CreateGigLocationAndTimeForm() {
 
         <div className="bg-gray-100 p-4 rounded-xl flex gap-1 md:flex-col md:justify-center hover:bg-gray-200 transition-colors cursor-pointer">
           <HiOutlineGlobeAlt className="mt-0.5" />
-          <div className="text-sm">GMT+03:00</div>
-          <div className="text-sm text-gray-600">Nairobi</div>
+          <div className="text-sm">{`GMT${IanaTZtoOffset(timeZone)}`}</div>
+          <div className="text-sm text-gray-600">
+            {getCityFromIanaTZ(timeZone)}
+          </div>
         </div>
       </div>
 
@@ -243,7 +326,7 @@ function CreateGigLocationAndTimeForm() {
       )}
 
       <StepNavigation
-        isValid={true}
+        isValid={locationType === "virtual" || physicalLocation !== null}
         nextStepName="Compensation"
         handleBack={() => navigate("/gigs/new/label")}
       />

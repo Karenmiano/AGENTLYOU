@@ -47,6 +47,8 @@ export function useAutoCompleteSuggestions(
 
       AutocompleteSuggestion.fetchAutocompleteSuggestions(request).then(
         (res) => {
+          console.log("Fetched suggestions for:", inputString);
+
           setSuggestions(res.suggestions);
           setIsLoading(false);
         }

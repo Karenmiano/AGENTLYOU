@@ -10,3 +10,14 @@ export type CreateGig = {
   setStep: Dispatch<SetStateAction<number>>;
   step: number;
 };
+
+export interface PhysicalLocation {
+  id: string;
+  displayName: string;
+  adrFormatAddress: string;
+  geolocation: {
+    country: string;
+    stateRegion: string;
+    city: string;
+  };
+}

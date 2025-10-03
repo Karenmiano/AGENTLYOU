@@ -1,3 +1,8 @@
+/*
+- Original location step implementation before switching to google places API
+- This form can still be used for manual location entry if needed in the future with a
+couple of adjustments to match the schema
+
 import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import type { FieldErrors } from "react-hook-form";
@@ -244,3 +249,4 @@ function CreateGigLocationForm() {
 }
 
 export default CreateGigLocationForm;
+*/
