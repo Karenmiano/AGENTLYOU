@@ -13,6 +13,8 @@ import type { PhysicalLocation } from "../types";
 
 interface SelectLocationProps {
   locationType: "virtual" | "physical";
+  isOpen: boolean;
+  setIsOpen: Dispatch<SetStateAction<boolean>>;
   setLocationType: Dispatch<SetStateAction<"virtual" | "physical">>;
   setPhysicalLocation: Dispatch<
     SetStateAction<PhysicalLocation | google.maps.places.Place | null>
@@ -25,10 +27,16 @@ function SelectLocation({
   setLocationType,
   setPhysicalLocation,
   closeModal,
+  isOpen,
+  setIsOpen,
 }: SelectLocationProps) {
   const places = useMapsLibrary("places");
   const [inputValue, setInputValue] = useState("");
   const { suggestions, resetSession } = useAutoCompleteSuggestions(inputValue);
+
+  const controlRef = useRef<HTMLDivElement | null>(null);
+  const segment1Ref = useRef<HTMLDivElement | null>(null);
+  const segment2Ref = useRef<HTMLDivElement | null>(null);
 
   async function handleSuggestionClick(
     suggestion: google.maps.places.AutocompleteSuggestion
@@ -57,30 +65,48 @@ function SelectLocation({
   }
 
   return (
-    <>
-      <SegmentedControl
-        name="group-1"
-        callback={(val) => {
-          setLocationType(val as "physical" | "virtual");
-          if (val === "virtual") setPhysicalLocation(null);
-        }}
-        defaultIndex={locationType === "physical" ? 0 : 1}
-        controlRef={useRef(null)}
-        segments={[
-          {
-            label: "Physical event",
-            value: "physical",
-            icon: <HiOutlineHome className="size-5" />,
-            ref: useRef(null),
-          },
-          {
-            label: "Virtual event",
-            value: "virtual",
-            icon: <HiOutlineVideoCamera className="size-5" />,
-            ref: useRef(null),
-          },
-        ]}
-      />
+    <dialog
+      id="select-location"
+      className="top-36 left-1/2 -translate-x-1/2 w-120 rounded-lg p-4"
+      onClose={() => setIsOpen(false)}
+      onClick={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+
+        if (
+          rect.left > e.clientX ||
+          rect.right < e.clientX ||
+          rect.top > e.clientY ||
+          rect.bottom < e.clientY
+        ) {
+          e.currentTarget.close();
+        }
+      }}
+    >
+      {isOpen && (
+        <SegmentedControl
+          name="group-1"
+          callback={(val) => {
+            setLocationType(val as "physical" | "virtual");
+            if (val === "virtual") setPhysicalLocation(null);
+          }}
+          defaultIndex={locationType === "physical" ? 0 : 1}
+          controlRef={controlRef}
+          segments={[
+            {
+              label: "Physical event",
+              value: "physical",
+              icon: <HiOutlineHome className="size-5" />,
+              ref: segment1Ref,
+            },
+            {
+              label: "Virtual event",
+              value: "virtual",
+              icon: <HiOutlineVideoCamera className="size-5" />,
+              ref: segment2Ref,
+            },
+          ]}
+        />
+      )}
 
       {locationType === "physical" ? (
         <div className="mt-7">
@@ -136,7 +162,7 @@ function SelectLocation({
           </p>
         </div>
       )}
-    </>
+    </dialog>
   );
 }
 

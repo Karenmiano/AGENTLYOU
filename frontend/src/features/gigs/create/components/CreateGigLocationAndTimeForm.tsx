@@ -8,7 +8,6 @@ import { HiOutlineGlobeAlt } from "react-icons/hi";
 
 import SelectLocation from "./SelectLocation";
 import StepNavigation from "./StepNavigation";
-import Modal from "../../../../ui/Modal";
 import { useCreateGig } from "../hooks/useCreateGig";
 import { getCityFromIanaTZ, IanaTZtoOffset } from "../../../../helpers";
 import type { PhysicalLocation } from "../types";
@@ -74,7 +73,16 @@ function CreateGigLocationAndTimeForm() {
 
   const [startDateTime, setStartDateTime] = useState(() => {
     if (createGigData.startDateTime) {
-      return new Date(createGigData.startDateTime);
+      const startDateTime = new Date(createGigData.startDateTime);
+      const minStartDateTime = roundToNearestMinutes(
+        add(new Date(), { minutes: 30 }),
+        {
+          nearestTo: 15,
+        }
+      );
+      if (startDateTime >= minStartDateTime) {
+        return startDateTime;
+      }
     }
 
     // set default start date to 2 days from now at 9:00 AM
@@ -85,7 +93,11 @@ function CreateGigLocationAndTimeForm() {
   });
   const [endDateTime, setEndDateTime] = useState(() => {
     if (createGigData.endDateTime) {
-      return new Date(createGigData.endDateTime);
+      const endDateTime = new Date(createGigData.endDateTime);
+      const minEndDateTime = add(startDateTime, { minutes: 15 });
+      if (endDateTime >= minEndDateTime) {
+        return endDateTime;
+      }
     }
 
     // set default end date to 2 days from now at 4:00 PM
@@ -122,6 +134,8 @@ function CreateGigLocationAndTimeForm() {
   const navigate = useNavigate();
 
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  const [IsOpenDialog, setIsOpenDialog] = useState(false);
 
   function handleStartDateTimeChange(date: Date | null) {
     if (!date) return;
@@ -274,44 +288,58 @@ function CreateGigLocationAndTimeForm() {
         </div>
       </div>
 
-      <Modal>
-        <Modal.Open opens="select-location">
-          <div className="flex bg-gray-100 p-4 rounded-xl gap-2 text-gray-900 hover:bg-gray-200 transition-colors cursor-pointer">
-            <HiOutlineLocationMarker className="size-5 mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="font-medium">
-                {physicalLocation
-                  ? physicalLocation.displayName
-                  : locationType === "virtual"
-                  ? "Virtual event"
-                  : "Add Event Location"}
-              </p>
-              <p className="text-sm">
-                {physicalLocation ? (
-                  <span
-                    dangerouslySetInnerHTML={{
-                      __html: DOMPurify.sanitize(
-                        physicalLocation.adrFormatAddress ?? ""
-                      ),
-                    }}
-                  />
-                ) : locationType === "virtual" ? (
-                  ""
-                ) : (
-                  "Physical or online location"
-                )}
-              </p>
-            </div>
-          </div>
-        </Modal.Open>
-        <Modal.Window name="select-location">
-          <SelectLocation
-            locationType={locationType}
-            setLocationType={setLocationType}
-            setPhysicalLocation={setPhysicalLocation}
-          />
-        </Modal.Window>
-      </Modal>
+      <div
+        id="open-select-location"
+        className="flex bg-gray-100 p-4 rounded-xl gap-2 text-gray-900 hover:bg-gray-200 transition-colors cursor-pointer"
+        onClick={() => {
+          const selectLocationModal = document.getElementById(
+            "select-location"
+          ) as HTMLDialogElement;
+
+          selectLocationModal.showModal();
+          setIsOpenDialog(true);
+        }}
+      >
+        <HiOutlineLocationMarker className="size-5 mt-0.5 flex-shrink-0" />
+        <div>
+          <p className="font-medium">
+            {physicalLocation
+              ? physicalLocation.displayName
+              : locationType === "virtual"
+              ? "Virtual event"
+              : "Add Event Location"}
+          </p>
+          <p className="text-sm">
+            {physicalLocation ? (
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(
+                    physicalLocation.adrFormatAddress ?? ""
+                  ),
+                }}
+              />
+            ) : locationType === "virtual" ? (
+              ""
+            ) : (
+              "Physical or online location"
+            )}
+          </p>
+        </div>
+      </div>
+
+      <SelectLocation
+        locationType={locationType}
+        setLocationType={setLocationType}
+        setPhysicalLocation={setPhysicalLocation}
+        closeModal={() => {
+          const selectLocationModal = document.getElementById(
+            "select-location"
+          ) as HTMLDialogElement;
+          selectLocationModal.close();
+        }}
+        isOpen={IsOpenDialog}
+        setIsOpen={setIsOpenDialog}
+      />
 
       {physicalLocation && (
         <iframe
