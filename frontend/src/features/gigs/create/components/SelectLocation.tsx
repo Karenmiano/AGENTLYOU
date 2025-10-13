@@ -58,8 +58,6 @@ function SelectLocation({
     setPhysicalLocation(place);
     setInputValue("");
 
-    console.log(place);
-
     resetSession();
     closeModal?.();
   }

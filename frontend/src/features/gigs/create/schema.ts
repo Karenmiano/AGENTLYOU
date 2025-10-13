@@ -34,6 +34,10 @@ export const createGigSchema = z.object({
   startDateTime: z.iso.datetime(),
   endDateTime: z.iso.datetime(),
   timeZone: z.string(),
+  compensation: z
+    .number()
+    .min(5, "Must be at least $5")
+    .max(1000000, "Must be at most $1,000,000"),
 });
 
 export type TCreateGigSchema = z.infer<typeof createGigSchema>;

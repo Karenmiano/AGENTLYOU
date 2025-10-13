@@ -13,6 +13,9 @@ export function getLastIncompleteGigStep(
   if (currentStep > 3 && !createGigData.labels?.length) {
     return "/gigs/new/label";
   }
+  if (currentStep > 4 && !createGigData.location) {
+    return "/gigs/new/location-time";
+  }
 
   return null;
 }

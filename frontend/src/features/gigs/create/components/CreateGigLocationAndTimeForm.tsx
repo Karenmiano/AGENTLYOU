@@ -193,6 +193,8 @@ function CreateGigLocationAndTimeForm() {
       endDateTime: endDateTime.toISOString(),
       timeZone,
     }));
+
+    navigate("/gigs/new/compensation");
   }
 
   return (

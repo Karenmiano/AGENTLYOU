@@ -116,7 +116,7 @@ function CreateGigLabelsForm() {
       ...createGigData,
       labels: selectedLabels,
     }));
-    navigate("/gigs/new/location&time");
+    navigate("/gigs/new/location-time");
   }
 
   return (

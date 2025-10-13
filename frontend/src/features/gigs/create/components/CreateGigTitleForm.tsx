@@ -46,7 +46,7 @@ function CreateGigTitleForm() {
           <input
             id="title"
             {...register("title")}
-            className="w-full rounded-md border border-gray-300 px-4 py-2 outline-offset-4 text-sm "
+            className="w-full rounded-md border border-gray-300 px-4 py-2 outline-offset-4 text-sm"
             defaultValue={createGigData.title}
           />
           {errors.title && <InputError>{errors.title.message}</InputError>}

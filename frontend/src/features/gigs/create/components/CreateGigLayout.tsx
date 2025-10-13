@@ -28,8 +28,11 @@ function CreateGigLayout() {
         case "/gigs/new/label":
           setStep(3);
           break;
-        case "/gigs/new/location&time":
+        case "/gigs/new/location-time":
           setStep(4);
+          break;
+        case "/gigs/new/compensation":
+          setStep(5);
           break;
       }
     },
