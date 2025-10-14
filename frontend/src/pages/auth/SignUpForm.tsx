@@ -10,7 +10,7 @@ import axios from "axios";
 
 import { api } from "../../api";
 import AuthFormInput from "../../ui/AuthFormInput";
-import AuthFormLabel from "../../ui/AuthFormLabel";
+import FormLabel from "../../ui/FormLabel";
 import InputError from "../../ui/InputError";
 
 import type { TSignUpSchema, ExtractKeys } from "../../lib/types";
@@ -99,7 +99,7 @@ function SignUpForm() {
   }
 
   return signUpRole ? (
-    <div className="px-5 mx-auto mb-10 mt-2 max-w-[550px] sm:px-0">
+    <div className="px-4 mx-auto mb-10 mt-2 max-w-[550px] sm:px-0">
       <button
         type="button"
         aria-label="Back"
@@ -111,7 +111,7 @@ function SignUpForm() {
       <form className="mb-2" onSubmit={handleSubmit(onSubmit)}>
         <h1 className="text-2xl text-center font-bold mb-5">SignUp</h1>
         <div className="mb-3">
-          <AuthFormLabel htmlFor="name">Full Name</AuthFormLabel>
+          <FormLabel htmlFor="fullName">Full Name</FormLabel>
           <AuthFormInput
             type="text"
             name="fullName"
@@ -124,7 +124,7 @@ function SignUpForm() {
         </div>
 
         <div className="mb-3">
-          <AuthFormLabel htmlFor="email">Email Address</AuthFormLabel>
+          <FormLabel htmlFor="email">Email Address</FormLabel>
           <AuthFormInput
             type="email"
             name="email"
@@ -135,7 +135,7 @@ function SignUpForm() {
         </div>
 
         <div className="mb-3">
-          <AuthFormLabel htmlFor="password">Password</AuthFormLabel>
+          <FormLabel htmlFor="password">Password</FormLabel>
           <div className="relative">
             <AuthFormInput
               type={showPassword ? "text" : "password"}
@@ -161,9 +161,7 @@ function SignUpForm() {
         </div>
 
         <div className="mb-3">
-          <AuthFormLabel htmlFor="confirmPassword">
-            Confirm Password
-          </AuthFormLabel>
+          <FormLabel htmlFor="confirmPassword">Confirm Password</FormLabel>
           <div className="relative">
             <AuthFormInput
               type={showPassword ? "text" : "password"}
@@ -192,7 +190,7 @@ function SignUpForm() {
           <legend className="mb-2 font-semibold">Location Details</legend>
           <div className="grid grid-cols-2 gap-x-3">
             <div className="mb-3">
-              <AuthFormLabel htmlFor="country">Country</AuthFormLabel>
+              <FormLabel htmlFor="country">Country</FormLabel>
               <AuthFormInput
                 type="text"
                 name="location.country"
@@ -205,9 +203,10 @@ function SignUpForm() {
             </div>
 
             <div className="mb-3">
-              <AuthFormLabel htmlFor="STR">
-                State/ Region<span className="text-gray-500">(optional)</span>
-              </AuthFormLabel>
+              <FormLabel htmlFor="stateRegion">
+                State/ Region
+                <span className="text-gray-500">(optional)</span>
+              </FormLabel>
               <AuthFormInput
                 type="text"
                 name="location.stateRegion"
@@ -220,7 +219,7 @@ function SignUpForm() {
             </div>
 
             <div className="mb-3">
-              <AuthFormLabel htmlFor="city">City</AuthFormLabel>
+              <FormLabel htmlFor="city">City</FormLabel>
               <AuthFormInput
                 type="text"
                 name="location.city"
@@ -265,7 +264,7 @@ function SignUpForm() {
         </div>
 
         <button
-          className="flex items-center justify-center w-full rounded-full hover:bg-primary bg-primary/90 py-3 font-semibold text-white outline-none transition-colors"
+          className="flex items-center justify-center w-full rounded-full hover:bg-primary bg-primary/90 py-3 font-semibold text-white outline-none transition-colors cursor-pointer"
           type="submit"
           disabled={isSubmitting}
         >

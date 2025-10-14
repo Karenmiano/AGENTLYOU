@@ -1,9 +1,9 @@
-interface AuthFormLabelProps {
+interface FormLabelProps {
   htmlFor: string;
   children: React.ReactNode;
 }
 
-function AuthFormLabel({ htmlFor, children }: AuthFormLabelProps) {
+function FormLabel({ htmlFor, children }: FormLabelProps) {
   return (
     <label
       htmlFor={htmlFor}
@@ -14,4 +14,4 @@ function AuthFormLabel({ htmlFor, children }: AuthFormLabelProps) {
   );
 }
 
-export default AuthFormLabel;
+export default FormLabel;

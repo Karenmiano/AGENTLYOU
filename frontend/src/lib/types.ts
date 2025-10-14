@@ -12,11 +12,10 @@ export type Role = "client" | "agent";
 
 export const signUpSchema = z
   .object({
-    fullName: z.string().min(1, { message: "Full Name is required" }),
-    email: z
-      .string()
-      .min(1, { message: "Email is required" })
-      .email("Invalid email format"),
+    fullName: z.string().min(1, { error: "Full Name is required" }),
+    email: z.email({
+      error: (issue) => (issue.input === "" ? "Email is required" : undefined),
+    }),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters")
@@ -28,11 +27,11 @@ export const signUpSchema = z
       stateRegion: z.string(),
     }),
     termsAgreed: z.literal(true, {
-      message: "Please accept the Terms of Service before continuing",
+      error: "Please accept the Terms of Service before continuing",
     }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
+    error: "Passwords do not match",
     path: ["confirmPassword"],
   });
 

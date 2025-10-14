@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import { Link, useNavigate } from "react-router";
 import { HiOutlineBriefcase } from "react-icons/hi2";
 import { HiOutlineUser } from "react-icons/hi2";
@@ -22,7 +21,7 @@ function SignUpRole() {
   }
 
   return (
-    <div className="max-w-fit mx-auto mt-8 px-5 sm:px-0">
+    <div className="max-w-fit mx-auto mt-8 px-4 sm:px-0">
       <h1 className="text-center font-bold text-xl mb-5">
         Create your account
       </h1>
@@ -94,7 +93,7 @@ function SignUpRole() {
         disabled={!signUpRole}
         onClick={handleContinue}
         type="button"
-        className="w-full rounded-full hover:bg-primary bg-primary/90 py-3 text-center font-semibold text-white outline-none mb-2"
+        className="w-full rounded-full hover:bg-primary bg-primary/90 py-3 text-center font-semibold text-white outline-none mb-2 cursor-pointer"
       >
         Continue
       </button>
