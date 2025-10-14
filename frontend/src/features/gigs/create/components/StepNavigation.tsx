@@ -30,7 +30,7 @@ function StepNavigation({
         className="rounded-full bg-primary/90 py-3 px-5 text-white  cursor-pointer disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400"
         disabled={!isValid}
       >
-        Next: {nextStepName}
+        {step < 5 ? "Next: " : ""} {nextStepName}
       </button>
     </div>
   );

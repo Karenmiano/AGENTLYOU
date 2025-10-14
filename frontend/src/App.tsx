@@ -48,6 +48,10 @@ function App() {
                 />
               </Route>
             </Route>
+            <Route
+              path="review"
+              element={<p>Review a gig and possibly publish it</p>}
+            />
           </Route>
           <Route path="*" element={<h1>Page not found</h1>} />
         </Routes>

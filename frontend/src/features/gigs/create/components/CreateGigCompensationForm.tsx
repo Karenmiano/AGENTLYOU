@@ -6,6 +6,7 @@ import { useNavigate } from "react-router";
 import InputError from "../../../../ui/InputError";
 import StepNavigation from "./StepNavigation";
 
+import { useCreateGig } from "../hooks/useCreateGig";
 import { createGigSchema } from "../schema";
 
 const createGigCompensationSchema = createGigSchema.pick({
@@ -29,8 +30,14 @@ function CreateGigCompensationForm() {
     valueAsNumber: true,
   });
 
+  const { createGigData, setCreateGigData } = useCreateGig();
+
   function onSubmit(data: TCreateGigCompensationSchema) {
-    console.log(data);
+    setCreateGigData((createGigData) => ({
+      ...createGigData,
+      compensation: data.compensation,
+    }));
+    navigate("/gigs/review");
   }
 
   return (
@@ -46,6 +53,7 @@ function CreateGigCompensationForm() {
             id="compensation"
             name={name}
             ref={ref}
+            defaultValue={createGigData.compensation?.toFixed(2) ?? ""}
             onBlur={(e) => {
               if (e.currentTarget.value)
                 e.currentTarget.value = Number(e.currentTarget.value).toFixed(
