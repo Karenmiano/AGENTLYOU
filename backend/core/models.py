@@ -7,7 +7,7 @@ class Location(models.Model):
     """
 
     city = models.CharField(max_length=255)
-    state_region = models.CharField(max_length=255, blank=True, default="")
+    state_region = models.CharField(max_length=255)
     country = models.CharField(max_length=255)
 
     # add a unique constraint to city, state_province, country combo

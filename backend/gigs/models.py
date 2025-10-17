@@ -1,4 +1,5 @@
 import uuid
+import zoneinfo
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
@@ -28,7 +29,6 @@ class Gig(models.Model):
     LOCATION_TYPE_CHOICES = [
         ("virtual", "Virtual"),
         ("physical", "Physical"),
-        ("hybrid", "Hybrid"),
     ]
 
     STATUS_CHOICES = [
@@ -36,12 +36,17 @@ class Gig(models.Model):
         ("published", "Published"),
         ("agent_confirmed", "Agent Confirmed"),
         ("completed", "Completed"),
-        ("cancelled", "Cancelled"),
+        (
+            "cancelled",
+            "Cancelled",
+        ),  # possibly replace this with paused? deleting vs pausing
     ]
+
+    TIMEZONES_CHOICES = [(tz, tz) for tz in zoneinfo.available_timezones()]
 
     # gig details
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=100, validators=[MinLengthValidator(3)])
     event_label = TaggableManager(through=UUIDTaggedItem, verbose_name="Event Label")
     description = models.TextField(
         validators=[MinLengthValidator(50, "Must be at least 50 characters long")]
@@ -49,9 +54,8 @@ class Gig(models.Model):
 
     # location
     location_type = models.CharField(max_length=10, choices=LOCATION_TYPE_CHOICES)
-    venue = models.CharField(max_length=255, blank=True, default="")
-    location = models.ForeignKey(
-        "core.Location",
+    venue = models.ForeignKey(
+        "gigs.Venue",
         on_delete=models.SET_NULL,
         related_name="gigs",
         null=True,
@@ -61,6 +65,11 @@ class Gig(models.Model):
     # date and time
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
+    timezone = models.CharField(
+        max_length=50,
+        choices=TIMEZONES_CHOICES,
+        default="UTC",
+    )  # the original timezone while creating the gig
 
     compensation = models.DecimalField(
         max_digits=12, decimal_places=2, validators=[MinValueValidator(Decimal("0.01"))]
@@ -105,6 +114,8 @@ class Gig(models.Model):
                 {"status": "Only gigs with status 'draft' can be published"}
             )
 
+        validate_start_end_datetime(self.start_datetime, self.end_datetime)
+
         self.status = "published"
         self.save()
 
@@ -119,7 +130,22 @@ class Gig(models.Model):
         super().clean()
 
         validate_start_end_datetime(self.start_datetime, self.end_datetime)
-        validate_location_fields(self.location_type, self.venue, self.location)
+        validate_location_fields(self.location_type, self.venue)
 
     def __str__(self):
         return self.title
+
+
+class Venue(models.Model):
+    google_place_id = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
+    address = models.TextField()
+    location = models.ForeignKey(
+        "core.Location", on_delete=models.CASCADE, related_name="venues"
+    )
+
+    class Meta:
+        db_table = "venues"
+
+    def __str__(self):
+        return self.name

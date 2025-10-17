@@ -17,6 +17,7 @@ class TestCustomTokenObtainPairSerializer(TestCase):
         location = Location.objects.create(
             city="Test City",
             country="Test Country",
+            state_region="Test State",
         )
         user_data = {
             "email": "test@test.com",

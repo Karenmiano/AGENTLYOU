@@ -36,29 +36,15 @@ def validate_start_end_datetime(start_datetime, end_datetime):
         )
 
 
-def validate_location_fields(location_type, venue, location):
+def validate_location_fields(location_type, venue):
     """
     Validate location fields based on location type.
-    - For virtual gigs, venue and location should not be provided.
-    - For physical and hybrid gigs, venue and location must be provided.
+    - For virtual gigs, venue should not be provided.
+    - For physical gigs, venue must be provided.
     """
 
-    if location_type == "virtual":
-        if venue:
-            raise ValidationError(
-                {"venue": "Venue is not appropriate for virtual gigs."}
-            )
-        if location:
-            raise ValidationError(
-                {"location": "Location is not appropriate for virtual gigs."}
-            )
+    if location_type == "virtual" and venue:
+        raise ValidationError({"venue": "Venue is not appropriate for virtual gigs."})
 
-    if location_type in ["physical", "hybrid"]:
-        if not venue:
-            raise ValidationError(
-                {"venue": "Venue is required for physical and hybrid gigs."}
-            )
-        if not location:
-            raise ValidationError(
-                {"location": "Location is required for physical and hybrid gigs."}
-            )
+    if location_type == "physical" and not venue:
+        raise ValidationError({"venue": "Venue is required for physical gigs."})

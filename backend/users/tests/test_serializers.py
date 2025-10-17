@@ -21,6 +21,7 @@ class TestUserSerializer(TestCase):
             "confirm_password": "password123",
             "location": {
                 "city": "Test City",
+                "state_region": "Test State",
                 "country": "Test Country",
             },
             "default_role": "client",
@@ -106,6 +107,7 @@ class TestUserSerializer(TestCase):
         """
         location = Location.objects.create(
             city="Output City",
+            state_region="Output State",
             country="Output Country",
         )
         user = CustomUser.objects.create_user(
