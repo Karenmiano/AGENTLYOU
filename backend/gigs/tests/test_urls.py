@@ -3,7 +3,7 @@ import uuid
 from django.test import SimpleTestCase
 from django.urls import reverse, resolve
 
-from gigs.views import GigCreateView, GigUpdateView, PublishGig
+from gigs.views import GigCreateView, GigUpdateView, PublishGig, GigClientReviewView
 
 
 class GigUrlsTests(SimpleTestCase):
@@ -12,6 +12,13 @@ class GigUrlsTests(SimpleTestCase):
         self.assertEqual(url, "/api/gigs/new/")
         resolver = resolve(url)
         self.assertEqual(resolver.func.view_class, GigCreateView)
+
+    def test_gig_client_review_url(self):
+        gig_id = uuid.uuid4()
+        url = reverse("gig-client-review", kwargs={"pk": gig_id})
+        self.assertEqual(url, f"/api/gigs/{gig_id}/review/")
+        resolver = resolve(url)
+        self.assertEqual(resolver.func.view_class, GigClientReviewView)
 
     def test_gig_update_url(self):
         gig_id = uuid.uuid4()

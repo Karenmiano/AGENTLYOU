@@ -1,15 +1,24 @@
 from rest_framework import serializers
 from taggit.serializers import TaggitSerializer, TagListSerializerField
 
-from gigs.models import Gig
+from gigs.models import Gig, Venue
 from gigs.validators import validate_start_end_datetime, validate_location_fields
 from core.models import Location
 from core.serializers import LocationSerializer
 
 
+class VenueSerializer(serializers.ModelSerializer):
+    google_place_id = serializers.CharField()
+    location = LocationSerializer()
+
+    class Meta:
+        model = Venue
+        fields = ["id", "google_place_id", "name", "address", "location"]
+
+
 class GigSerializer(TaggitSerializer, serializers.ModelSerializer):
     event_label = TagListSerializerField()
-    location = LocationSerializer(required=False, allow_null=True)
+    venue = VenueSerializer(required=False, allow_null=True)
     status = serializers.ChoiceField(
         ["draft", "published"],
         default="draft",
@@ -25,9 +34,9 @@ class GigSerializer(TaggitSerializer, serializers.ModelSerializer):
             "description",
             "location_type",
             "venue",
-            "location",
             "start_datetime",
             "end_datetime",
+            "timezone",
             "compensation",
             "status",
             "client",
@@ -62,24 +71,26 @@ class GigSerializer(TaggitSerializer, serializers.ModelSerializer):
             data.get("start_datetime"), data.get("end_datetime")
         )
 
-        validate_location_fields(
-            data.get("location_type"), data.get("venue"), data.get("location", None)
-        )
+        validate_location_fields(data.get("location_type"), data.get("venue"))
         return data
 
     def create(self, validated_data):
         """
         Create a new gig instance.
         """
-        if validated_data.get("location"):
-            location = validated_data.pop("location")
+        if validated_data.get("venue"):
+            venue = validated_data.pop("venue")
+            location = venue.pop("location")
             location, _ = Location.objects.get_or_create(**location)
-            validated_data["location"] = location
+            venue, _ = Venue.objects.get_or_create(location=location, **venue)
+            validated_data["venue"] = venue
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        if validated_data.get("location"):
-            location = validated_data.pop("location")
+        if validated_data.get("venue"):
+            venue = validated_data.pop("venue")
+            location = venue.pop("location")
             location, _ = Location.objects.get_or_create(**location)
-            validated_data["location"] = location
+            venue, _ = Venue.objects.get_or_create(location=location, **venue)
+            validated_data["venue"] = venue
         return super().update(instance, validated_data)

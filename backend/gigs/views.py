@@ -29,6 +29,18 @@ class GigCreateView(generics.CreateAPIView):
         serializer.save(client=self.request.user)
 
 
+class GigClientReviewView(generics.RetrieveAPIView):
+    """
+    Retrieve a gig for client review.
+    Used for general review with possible updates on the gig.
+    Clients can only access their own gigs.
+    """
+
+    queryset = Gig.objects.all()
+    serializer_class = GigSerializer
+    permission_classes = [IsAuthenticated, IsClient, IsGigOwner]
+
+
 class GigUpdateView(generics.UpdateAPIView):
     """
     Update an existing gig.

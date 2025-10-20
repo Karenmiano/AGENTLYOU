@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from users.tests.factories import UserFactory
-from gigs.models import Gig
+from gigs.models import Gig, Venue
 from gigs.serializers import GigSerializer
 from core.models import Location
 
@@ -15,11 +15,23 @@ class GigSerializerTests(TestCase):
             "event_label": ["conference", "workshop"],
             "status": "draft",
             "location_type": "virtual",
+            "timezone": "Africa/Nairobi",
             "start_datetime": (timezone.now() + timezone.timedelta(days=1)).isoformat(),
             "end_datetime": (
                 timezone.now() + timezone.timedelta(days=1, hours=2)
             ).isoformat(),
             "compensation": "150.00",
+        }
+
+        self.venue = {
+            "google_place_id": "ChIJN1t_tDeuEmsRUsoyG83frY4",
+            "name": "The Grand Hall",
+            "address": "123 Main St, Test City, Test Country",
+            "location": {
+                "city": "Test City",
+                "state_region": "Test State",
+                "country": "Test Country",
+            },
         }
 
     def test_valid_data_creates_gig(self):
@@ -30,42 +42,48 @@ class GigSerializerTests(TestCase):
         self.assertEqual(Gig.objects.count(), 1)
         self.assertEqual(gig.title, "New Test Gig")
 
-    def test_nested_location_serializer_is_correctly_linked_during_create_and_update(
+    def test_nested_venue_serializer_is_correctly_linked_during_create_and_update(
         self,
     ):
         """
-        Test that location is correctly retrieved or created and linked to the gig.
+        Test that venue is correctly retrieved or created and linked to the gig.
         """
         # in creation
-        data_with_location = {
+        data_with_venue = {
             **self.valid_data,
             "location_type": "physical",
-            "venue": "Test Venue",
-            "location": {
-                "city": "Test City",
-                "country": "Test Country",
-            },
+            "venue": self.venue,
         }
-        serializer = GigSerializer(data=data_with_location)
+        serializer = GigSerializer(data=data_with_venue)
         self.assertTrue(serializer.is_valid())
         client = UserFactory(default_role="client")
         gig = serializer.save(client=client)
-        self.assertIsInstance(gig.location, Location)
+        self.assertIsInstance(gig.venue, Venue)
+        self.assertIsInstance(gig.venue.location, Location)
+        self.assertEqual(gig.venue.name, "The Grand Hall")
+        self.assertEqual(gig.venue.location.city, "Test City")
 
         # in update
-        updated_data_with_location = {
-            **data_with_location,
-            "venue": "Updated Venue",
-            "location": {
-                "city": "Updated City",
-                "country": "Updated Country",
+        updated_data_with_venue = {
+            **data_with_venue,
+            "venue": {
+                "google_place_id": "Chjds_tDeuEmsRUsoyG83frY4",
+                "name": "Updated Grand Hall",
+                "address": "Updated 123 Main St, Test City, Test Country",
+                "location": {
+                    "city": "Test City",
+                    "state_region": "Test State",
+                    "country": "Test Country",
+                },
             },
         }
-        serializer = GigSerializer(instance=gig, data=updated_data_with_location)
+        serializer = GigSerializer(instance=gig, data=updated_data_with_venue)
         self.assertTrue(serializer.is_valid())
         updated_gig = serializer.save()
-        self.assertIsInstance(updated_gig.location, Location)
-        self.assertEqual(updated_gig.location.city, "Updated City")
+        self.assertIsInstance(updated_gig.venue, Venue)
+        self.assertIsInstance(gig.venue.location, Location)
+        self.assertEqual(updated_gig.venue.name, "Updated Grand Hall")
+        self.assertEqual(updated_gig.venue.location.city, "Test City")
 
     def test_client_field_is_read_only(self):
         """Test that client cannot be set using input data during gig creation or update."""
@@ -136,106 +154,36 @@ class GigSerializerTests(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("end_datetime", serializer.errors)
 
-    def test_physical_location_requires_venue_and_location(self):
+    def test_physical_location_requires_venue(self):
         valid_physical_data = {
             **self.valid_data,
             "location_type": "physical",
-            "venue": "Test Venue",
-            "location": {
-                "city": "Test City",
-                "country": "Test Country",
-            },
+            "venue": self.venue,
         }
         serializer = GigSerializer(data=valid_physical_data)
         self.assertTrue(serializer.is_valid())
 
         # missing venue
         missing_venue_data = {
-            **valid_physical_data,
-            "venue": "",
-        }
-        serializer = GigSerializer(data=missing_venue_data)
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(
-            serializer.errors["venue"][0],
-            "Venue is required for physical and hybrid gigs.",
-        )
-
-        # missing location
-        missing_location_data = {
             **self.valid_data,
             "location_type": "physical",
-            "venue": "Test Venue",
-        }
-        serializer = GigSerializer(data=missing_location_data)
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(
-            serializer.errors["location"][0],
-            "Location is required for physical and hybrid gigs.",
-        )
-
-    def test_hybrid_location_requires_venue_and_location(self):
-        valid_hybrid_data = {
-            **self.valid_data,
-            "location_type": "hybrid",
-            "venue": "Test Venue",
-            "location": {
-                "city": "Test City",
-                "country": "Test Country",
-            },
-        }
-        serializer = GigSerializer(data=valid_hybrid_data)
-        self.assertTrue(serializer.is_valid())
-
-        # missing venue
-        missing_venue_data = {
-            **valid_hybrid_data,
-            "venue": "",
         }
         serializer = GigSerializer(data=missing_venue_data)
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors["venue"][0],
-            "Venue is required for physical and hybrid gigs.",
+            "Venue is required for physical gigs.",
         )
 
-        # missing location
-        missing_location_data = {
-            **self.valid_data,
-            "location_type": "hybrid",
-            "venue": "Test Venue",
-        }
-        serializer = GigSerializer(data=missing_location_data)
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(
-            serializer.errors["location"][0],
-            "Location is required for physical and hybrid gigs.",
-        )
-
-    def test_virtual_location_should_not_have_venue_nor_location(self):
+    def test_virtual_location_should_not_have_venue(self):
         # set a venue on virtual gig
         invalid_venue_data = {
             **self.valid_data,
-            "venue": "Test Venue",
+            "venue": self.venue,
         }
         serializer = GigSerializer(data=invalid_venue_data)
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors["venue"][0],
             "Venue is not appropriate for virtual gigs.",
-        )
-
-        # set a location on virtual gig
-        invalid_location_data = {
-            **self.valid_data,
-            "location": {
-                "city": "Test City",
-                "country": "Test Country",
-            },
-        }
-        serializer = GigSerializer(data=invalid_location_data)
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(
-            serializer.errors["location"][0],
-            "Location is not appropriate for virtual gigs.",
         )

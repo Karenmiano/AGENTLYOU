@@ -65,6 +65,52 @@ class GigCreateViewTests(APITestCase):
         )
 
 
+class GigClientReviewViewTests(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.client_user = UserFactory(default_role="client")
+        cls.gig = GigFactory(
+            title="Test Gig Title", status="draft", client=cls.client_user
+        )
+
+    def setUp(self):
+        self.url = reverse("gig-client-review", kwargs={"pk": self.gig.id})
+
+    def test_get_gig_review_success(self):
+        self.client.force_authenticate(user=self.client_user)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("id", response.data)
+        self.assertIn("description", response.data)
+        self.assertIn("status", response.data)
+
+    def test_only_authenticated_users_can_access_view(self):
+        # remove credentials
+        self.client.force_authenticate(user=None)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_only_client_users_can_access_view(self):
+        agent_user = UserFactory(default_role="agent")
+        self.client.force_authenticate(user=agent_user)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            response.data["detail"],
+            "You must be a client to perform this action.",
+        )
+
+    def test_client_must_be_gig_owner_to_retrieve(self):
+        another_client = UserFactory(default_role="client")
+        self.client.force_authenticate(user=another_client)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            response.data["detail"],
+            "You do not have permission to perform this action on this gig",
+        )
+
+
 class GigUpdateViewTests(APITestCase):
     @classmethod
     def setUpTestData(cls):

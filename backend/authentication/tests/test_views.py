@@ -25,6 +25,7 @@ class TestRegisterUserView(APITestCase):
             "full_name": "Test User",
             "location": {
                 "city": "Test City",
+                "state_region": "Test State",
                 "country": "Test Country",
             },
             "default_role": "client",
@@ -76,6 +77,7 @@ class TestRegisterUserView(APITestCase):
         """
         location = Location.objects.create(
             city="Test City",
+            state_region="Test State",
             country="Test Country",
         )
         user1_data = {
@@ -115,6 +117,7 @@ class TestLogoutView(APITestCase):
     def setUp(self):
         location = Location.objects.create(
             city="Test City",
+            state_region="Test State",
             country="Test Country",
         )
         user_data = {

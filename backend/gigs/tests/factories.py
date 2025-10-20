@@ -3,7 +3,7 @@ from faker import Faker as RealFaker
 
 from django.utils import timezone
 
-from gigs.models import Gig
+from gigs.models import Gig, Venue
 from users.tests.factories import UserFactory
 from core.tests.factories import LocationFactory
 
@@ -32,14 +32,7 @@ class GigFactory(factory.django.DjangoModelFactory):
 
     location_type = factory.Iterator(Gig.LOCATION_TYPE_CHOICES, getter=lambda c: c[0])
     venue = factory.LazyAttribute(
-        lambda o: (
-            real_faker.address() if o.location_type in ["physical", "hybrid"] else ""
-        )
-    )
-    location = factory.LazyAttribute(
-        lambda o: (
-            LocationFactory() if o.location_type in ["physical", "hybrid"] else None
-        )
+        lambda o: (VenueFactory() if o.location_type == "physical" else None)
     )
     start_datetime = factory.Faker(
         "future_datetime", tzinfo=timezone.get_default_timezone()
@@ -47,6 +40,7 @@ class GigFactory(factory.django.DjangoModelFactory):
     end_datetime = factory.LazyAttribute(
         lambda o: o.start_datetime + timezone.timedelta(hours=2)
     )
+    timezone = factory.Iterator(Gig.TIMEZONES_CHOICES, getter=lambda c: c[0])
 
     compensation = factory.Faker(
         "pydecimal", left_digits=3, right_digits=2, positive=True
@@ -62,3 +56,13 @@ class GigFactory(factory.django.DjangoModelFactory):
             else None
         )
     )
+
+
+class VenueFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Venue
+
+    google_place_id = factory.Faker("uuid4")
+    name = factory.Faker("company")
+    address = factory.Faker("address")
+    location = factory.SubFactory(LocationFactory)
