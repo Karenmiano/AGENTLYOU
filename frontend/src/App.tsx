@@ -12,6 +12,8 @@ import CreateGigLabelsPage from "./pages/gigs/create/CreateGigLabelsPage";
 import CreateGigLocationAndTimePage from "./pages/gigs/create/CreateGigLocationAndTimePage";
 import CreateGigCompensationPage from "./pages/gigs/create/CreateGigCompensationPage";
 
+import GigReviewPage from "./pages/gigs/manage/GigReviewPage";
+
 function App() {
   return (
     <>
@@ -50,7 +52,7 @@ function App() {
             </Route>
             <Route
               path="review"
-              element={<p>Review a gig and possibly publish it</p>}
+              element={<GigReviewPage />}
             />
           </Route>
           <Route path="*" element={<h1>Page not found</h1>} />

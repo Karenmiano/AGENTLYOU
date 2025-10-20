@@ -1,23 +1,10 @@
 import type { Dispatch, SetStateAction } from "react";
 
-import type { TCreateGigSchema } from "./schema";
-
-export type CreateGigData = Partial<TCreateGigSchema>;
+import type { GigData } from "../types";
 
 export type CreateGig = {
-  createGigData: CreateGigData;
-  setCreateGigData: Dispatch<SetStateAction<CreateGigData>>;
+  createGigData: GigData;
+  setCreateGigData: Dispatch<SetStateAction<GigData>>;
   setStep: Dispatch<SetStateAction<number>>;
   step: number;
 };
-
-export interface PhysicalLocation {
-  id: string;
-  displayName: string;
-  adrFormatAddress: string;
-  geolocation: {
-    country: string;
-    stateRegion: string;
-    city: string;
-  };
-}

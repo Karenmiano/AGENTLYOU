@@ -21,7 +21,7 @@ const location = z.discriminatedUnion("locationType", [
   }),
 ]);
 
-export const createGigSchema = z.object({
+export const gigSchema = z.object({
   title: z
     .string()
     .min(3, "Title must be at least 3 characters long")
@@ -40,4 +40,4 @@ export const createGigSchema = z.object({
     .max(1000000, "Must be at most $1,000,000"),
 });
 
-export type TCreateGigSchema = z.infer<typeof createGigSchema>;
+export type TGigSchema = z.infer<typeof gigSchema>;

@@ -4,10 +4,10 @@ import { Outlet, useLocation, useNavigate } from "react-router";
 import ClientNav from "../../../../ui/ClientNav";
 import { useLocalStorageState } from "../../../../hooks/useLocalStorageState";
 import { getLastIncompleteGigStep } from "../helpers";
-import type { CreateGigData } from "../types";
+import type { GigData } from "../../types";
 
 function CreateGigLayout() {
-  const [createGigData, setCreateGigData] = useLocalStorageState<CreateGigData>(
+  const [createGigData, setCreateGigData] = useLocalStorageState<GigData>(
     {},
     "create-gig-data"
   );

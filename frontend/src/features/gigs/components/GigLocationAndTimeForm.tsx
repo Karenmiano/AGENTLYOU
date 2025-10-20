@@ -1,25 +1,26 @@
 import DOMPurify from "dompurify";
 import { add, roundToNearestMinutes } from "date-fns";
 import { useState } from "react";
-import { useNavigate } from "react-router";
 import DatePicker from "react-datepicker";
+import { APIProvider } from "@vis.gl/react-google-maps";
 import { HiOutlineLocationMarker } from "react-icons/hi";
 import { HiOutlineGlobeAlt } from "react-icons/hi";
 
 import SelectLocation from "./SelectLocation";
-import StepNavigation from "./StepNavigation";
-import { useCreateGig } from "../hooks/useCreateGig";
-import { getCityFromIanaTZ, IanaTZtoOffset } from "../../../../helpers";
+import { getCityFromIanaTZ, IanaTZtoOffset } from "../../../helpers";
 import type { PhysicalLocation } from "../types";
+import type { GigFieldFormProps } from "../types";
 
 import "react-datepicker/dist/react-datepicker.css";
-import "../../../../styles/datepicker.css";
+import "../../../styles/datepicker.css";
 
 interface CustomInputProps {
   value?: string;
   onClick?: () => void;
   ref?: React.Ref<HTMLDivElement>;
 }
+
+const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 function extractLocation(
   addressComponents: google.maps.places.AddressComponent[]
@@ -68,12 +69,15 @@ function CustomTimeInput({ value, onClick, ref }: CustomInputProps) {
   );
 }
 
-function CreateGigLocationAndTimeForm() {
-  const { createGigData, setCreateGigData } = useCreateGig();
-
+function GigLocationAndTimeForm({
+  gigData,
+  setGigData,
+  renderFormActions,
+  onSubmit = () => {},
+}: GigFieldFormProps) {
   const [startDateTime, setStartDateTime] = useState(() => {
-    if (createGigData.startDateTime) {
-      const startDateTime = new Date(createGigData.startDateTime);
+    if (gigData.startDateTime) {
+      const startDateTime = new Date(gigData.startDateTime);
       const minStartDateTime = roundToNearestMinutes(
         add(new Date(), { minutes: 30 }),
         {
@@ -92,8 +96,8 @@ function CreateGigLocationAndTimeForm() {
     return date;
   });
   const [endDateTime, setEndDateTime] = useState(() => {
-    if (createGigData.endDateTime) {
-      const endDateTime = new Date(createGigData.endDateTime);
+    if (gigData.endDateTime) {
+      const endDateTime = new Date(gigData.endDateTime);
       const minEndDateTime = add(startDateTime, { minutes: 15 });
       if (endDateTime >= minEndDateTime) {
         return endDateTime;
@@ -109,14 +113,14 @@ function CreateGigLocationAndTimeForm() {
 
   const [locationType, setLocationType] = useState<"virtual" | "physical">(
     () => {
-      return createGigData.location?.locationType ?? "physical";
+      return gigData.location?.locationType ?? "physical";
     }
   );
   const [physicalLocation, setPhysicalLocation] = useState<
     google.maps.places.Place | PhysicalLocation | null
   >(() => {
-    if (createGigData.location?.locationType === "physical") {
-      const venue = createGigData.location.venue;
+    if (gigData.location?.locationType === "physical") {
+      const venue = gigData.location.venue;
       return {
         id: venue.google_place_id,
         displayName: venue.name,
@@ -130,8 +134,6 @@ function CreateGigLocationAndTimeForm() {
     }
     return null;
   });
-
-  const navigate = useNavigate();
 
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -172,8 +174,8 @@ function CreateGigLocationAndTimeForm() {
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    setCreateGigData((createGigData) => ({
-      ...createGigData,
+    setGigData((gigData) => ({
+      ...gigData,
       location:
         locationType === "virtual"
           ? { locationType: "virtual" }
@@ -194,7 +196,7 @@ function CreateGigLocationAndTimeForm() {
       timeZone,
     }));
 
-    navigate("/gigs/new/compensation");
+    onSubmit();
   }
 
   return (
@@ -329,39 +331,37 @@ function CreateGigLocationAndTimeForm() {
         </div>
       </div>
 
-      <SelectLocation
-        locationType={locationType}
-        setLocationType={setLocationType}
-        setPhysicalLocation={setPhysicalLocation}
-        closeModal={() => {
-          const selectLocationModal = document.getElementById(
-            "select-location"
-          ) as HTMLDialogElement;
-          selectLocationModal.close();
-        }}
-        isOpen={IsOpenDialog}
-        setIsOpen={setIsOpenDialog}
-      />
+      <APIProvider apiKey={googleMapsApiKey}>
+        <SelectLocation
+          locationType={locationType}
+          setLocationType={setLocationType}
+          setPhysicalLocation={setPhysicalLocation}
+          closeModal={() => {
+            const selectLocationModal = document.getElementById(
+              "select-location"
+            ) as HTMLDialogElement;
+            selectLocationModal.close();
+          }}
+          isOpen={IsOpenDialog}
+          setIsOpen={setIsOpenDialog}
+        />
 
-      {physicalLocation && (
-        <iframe
-          className="w-full border-none rounded-lg mt-4 h-48"
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-          src={`https://www.google.com/maps/embed/v1/place?key=${
-            import.meta.env.VITE_GOOGLE_MAPS_API_KEY
-          }
+        {physicalLocation && (
+          <iframe
+            className="w-full border-none rounded-lg mt-4 h-48"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            src={`https://www.google.com/maps/embed/v1/place?key=${googleMapsApiKey}
     &q=place_id:${physicalLocation.id}`}
-        ></iframe>
-      )}
+          ></iframe>
+        )}
+      </APIProvider>
 
-      <StepNavigation
-        isValid={locationType === "virtual" || physicalLocation !== null}
-        nextStepName="Compensation"
-        handleBack={() => navigate("/gigs/new/label")}
-      />
+      {renderFormActions(
+        locationType === "virtual" || physicalLocation !== null
+      )}
     </form>
   );
 }
 
-export default CreateGigLocationAndTimeForm;
+export default GigLocationAndTimeForm;

@@ -1,8 +1,8 @@
-import type { CreateGigData } from "./types";
+import type { GigData } from "../types";
 
 export function getLastIncompleteGigStep(
   currentStep: number,
-  createGigData: CreateGigData
+  createGigData: GigData
 ): string | null {
   if (currentStep > 1 && !createGigData.title) {
     return "/gigs/new/title";
@@ -13,7 +13,12 @@ export function getLastIncompleteGigStep(
   if (currentStep > 3 && !createGigData.labels?.length) {
     return "/gigs/new/label";
   }
-  if (currentStep > 4 && !createGigData.location) {
+  if (
+    currentStep > 4 &&
+    !createGigData.location &&
+    !createGigData.startDateTime &&
+    !createGigData.endDateTime
+  ) {
     return "/gigs/new/location-time";
   }
 

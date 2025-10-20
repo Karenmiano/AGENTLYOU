@@ -1,11 +1,8 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router";
 import { HiOutlinePlus } from "react-icons/hi";
 import { HiX } from "react-icons/hi";
 
-import StepNavigation from "./StepNavigation";
-
-import { useCreateGig } from "../hooks/useCreateGig";
+import type { GigFieldFormProps } from "../types";
 
 const labels = [
   { name: "networking", isSelected: false },
@@ -45,11 +42,14 @@ function Label({
   );
 }
 
-function CreateGigLabelsForm() {
-  const { setCreateGigData, createGigData } = useCreateGig();
-
+function GigLabelsForm({
+  gigData,
+  setGigData,
+  renderFormActions,
+  onSubmit = () => {},
+}: GigFieldFormProps) {
   const [appLabels, setAppLabels] = useState(() => {
-    const submittedLabels = createGigData.labels || [];
+    const submittedLabels = gigData.labels || [];
     if (submittedLabels.length === 0) return labels;
     return labels.map((label) => {
       for (const submittedLabel of submittedLabels) {
@@ -62,7 +62,7 @@ function CreateGigLabelsForm() {
 
   const [customLabels, setCustomLabels] = useState<string[]>(() => {
     const customLabels = [];
-    const submittedLabels = createGigData.labels || [];
+    const submittedLabels = gigData.labels || [];
     for (const submittedLabel of submittedLabels) {
       if (!labels.some((l) => l.name === submittedLabel)) {
         customLabels.push(submittedLabel);
@@ -70,8 +70,6 @@ function CreateGigLabelsForm() {
     }
     return customLabels;
   });
-
-  const navigate = useNavigate();
 
   const selectedLabels = [
     ...appLabels.filter((l) => l.isSelected).map((l) => l.name),
@@ -112,11 +110,11 @@ function CreateGigLabelsForm() {
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setCreateGigData((createGigData) => ({
-      ...createGigData,
+    setGigData((gigData) => ({
+      ...gigData,
       labels: selectedLabels,
     }));
-    navigate("/gigs/new/location-time");
+    onSubmit();
   }
 
   return (
@@ -182,15 +180,9 @@ function CreateGigLabelsForm() {
             )
         )}
       </ul>
-      <StepNavigation
-        handleBack={() => {
-          navigate("/gigs/new/description");
-        }}
-        isValid={selectedLabels.length > 0}
-        nextStepName="Location & Time"
-      />
+      {renderFormActions(selectedLabels.length > 0)}
     </form>
   );
 }
 
-export default CreateGigLabelsForm;
+export default GigLabelsForm;

@@ -1,43 +1,44 @@
 import { z } from "zod/v4";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router";
 import { TbBulb } from "react-icons/tb";
 
-import InputError from "../../../../ui/InputError";
-import StepNavigation from "./StepNavigation";
+import InputError from "../../../ui/InputError";
 
-import { useCreateGig } from "../hooks/useCreateGig";
-import { createGigSchema } from "../schema";
+import { gigSchema } from "../schema";
+import type { GigFieldFormProps } from "../types";
 
-const createGigTitleSchema = createGigSchema.pick({
+const gigTitleSchema = gigSchema.pick({
   title: true,
 });
 
-type TCreateGigTitleSchema = z.infer<typeof createGigTitleSchema>;
+type TGigTitleSchema = z.infer<typeof gigTitleSchema>;
 
-function CreateGigTitleForm() {
+function GigTitleForm({
+  gigData,
+  setGigData,
+  renderFormActions,
+  onSubmit = () => {},
+}: GigFieldFormProps) {
   const {
     register,
     formState: { errors, isValid },
     handleSubmit,
-  } = useForm<TCreateGigTitleSchema>({
-    resolver: zodResolver(createGigTitleSchema),
+  } = useForm<TGigTitleSchema>({
+    resolver: zodResolver(gigTitleSchema),
     mode: "onChange",
   });
-  const { createGigData, setCreateGigData } = useCreateGig();
-  const navigate = useNavigate();
 
-  function onSubmit(data: TCreateGigTitleSchema) {
-    setCreateGigData((createGigData) => ({
-      ...createGigData,
+  function handleFormSubmit(data: TGigTitleSchema) {
+    setGigData((gigData) => ({
+      ...gigData,
       title: data.title,
     }));
-    navigate("/gigs/new/description");
+    onSubmit();
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(handleFormSubmit)}>
       <label>
         <h1 className="text-2xl mb-5 md:font-medium">
           Kick things off with a clear title.
@@ -47,7 +48,7 @@ function CreateGigTitleForm() {
             id="title"
             {...register("title")}
             className="w-full rounded-md border border-gray-300 px-4 py-2 outline-offset-4 text-sm"
-            defaultValue={createGigData.title}
+            defaultValue={gigData.title}
           />
           {errors.title && <InputError>{errors.title.message}</InputError>}
         </div>
@@ -67,9 +68,9 @@ function CreateGigTitleForm() {
           <li>Network with investors at the blockchain summit in Singapore</li>
         </ul>
       </label>
-      <StepNavigation isValid={isValid} nextStepName="Description" />
+      {renderFormActions(isValid)}
     </form>
   );
 }
 
-export default CreateGigTitleForm;
+export default GigTitleForm;

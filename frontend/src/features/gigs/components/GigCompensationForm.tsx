@@ -1,47 +1,47 @@
 import { z } from "zod/v4";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router";
 
-import InputError from "../../../../ui/InputError";
-import StepNavigation from "./StepNavigation";
+import InputError from "../../../ui/InputError";
 
-import { useCreateGig } from "../hooks/useCreateGig";
-import { createGigSchema } from "../schema";
+import { gigSchema } from "../schema";
+import type { GigFieldFormProps } from "../types";
 
-const createGigCompensationSchema = createGigSchema.pick({
+const gigCompensationSchema = gigSchema.pick({
   compensation: true,
 });
 
-type TCreateGigCompensationSchema = z.infer<typeof createGigCompensationSchema>;
+type TGigCompensationSchema = z.infer<typeof gigCompensationSchema>;
 
-function CreateGigCompensationForm() {
+function GigCompensationForm({
+  gigData,
+  setGigData,
+  renderFormActions,
+  onSubmit = () => {},
+}: GigFieldFormProps) {
   const {
     register,
     formState: { errors, isValid },
     handleSubmit,
     setError,
-  } = useForm<TCreateGigCompensationSchema>({
-    resolver: zodResolver(createGigCompensationSchema),
+  } = useForm<TGigCompensationSchema>({
+    resolver: zodResolver(gigCompensationSchema),
     mode: "onChange",
   });
-  const navigate = useNavigate();
   const { onChange, onBlur, name, ref } = register("compensation", {
     valueAsNumber: true,
   });
 
-  const { createGigData, setCreateGigData } = useCreateGig();
-
-  function onSubmit(data: TCreateGigCompensationSchema) {
-    setCreateGigData((createGigData) => ({
-      ...createGigData,
+  function handleFormSubmit(data: TGigCompensationSchema) {
+    setGigData((gigData) => ({
+      ...gigData,
       compensation: data.compensation,
     }));
-    navigate("/gigs/review");
+    onSubmit();
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(handleFormSubmit)}>
       <label>
         <h1 className="text-2xl mb-5 md:font-medium">
           Set your budget for this gig.
@@ -53,7 +53,7 @@ function CreateGigCompensationForm() {
             id="compensation"
             name={name}
             ref={ref}
-            defaultValue={createGigData.compensation?.toFixed(2) ?? ""}
+            defaultValue={gigData.compensation?.toFixed(2) ?? ""}
             onBlur={(e) => {
               if (e.currentTarget.value)
                 e.currentTarget.value = Number(e.currentTarget.value).toFixed(
@@ -90,13 +90,9 @@ function CreateGigCompensationForm() {
           with your agent later.
         </p>
       </label>
-      <StepNavigation
-        handleBack={() => navigate("/gigs/new/location-time")}
-        isValid={isValid}
-        nextStepName="Review & Publish"
-      />
+      {renderFormActions(isValid)}
     </form>
   );
 }
 
-export default CreateGigCompensationForm;
+export default GigCompensationForm;

@@ -1,45 +1,45 @@
 import { z } from "zod/v4";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router";
 import { TbBulb } from "react-icons/tb";
 import { TbExternalLink } from "react-icons/tb";
 
-import StepNavigation from "./StepNavigation";
-import InputError from "../../../../ui/InputError";
+import InputError from "../../../ui/InputError";
 
-import { useCreateGig } from "../hooks/useCreateGig";
-import { createGigSchema } from "../schema";
+import { gigSchema } from "../schema";
+import type { GigFieldFormProps } from "../types";
 
-const createGigDescriptionSchema = createGigSchema.pick({
+const gigDescriptionSchema = gigSchema.pick({
   description: true,
 });
 
-type TCreateGigDescriptionSchema = z.infer<typeof createGigDescriptionSchema>;
+type TGigDescriptionSchema = z.infer<typeof gigDescriptionSchema>;
 
-function CreateGigDescriptionForm() {
+function CreateGigDescriptionForm({
+  gigData,
+  setGigData,
+  renderFormActions,
+  onSubmit = () => {},
+}: GigFieldFormProps) {
   const {
     register,
     handleSubmit,
     formState: { errors, isValid },
-  } = useForm<TCreateGigDescriptionSchema>({
-    resolver: zodResolver(createGigDescriptionSchema),
+  } = useForm<TGigDescriptionSchema>({
+    resolver: zodResolver(gigDescriptionSchema),
     mode: "onChange",
   });
-  const navigate = useNavigate();
 
-  const { createGigData, setCreateGigData } = useCreateGig();
-
-  function onSubmit(data: TCreateGigDescriptionSchema) {
-    setCreateGigData((createGigData) => ({
-      ...createGigData,
+  function handleFormSubmit(data: TGigDescriptionSchema) {
+    setGigData((gigData) => ({
+      ...gigData,
       description: data.description,
     }));
-    navigate("/gigs/new/label");
+    onSubmit();
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(handleFormSubmit)}>
       <label>
         <h1 className="text-2xl mb-5 md:font-medium">
           Now let's get into the details.
@@ -49,7 +49,7 @@ function CreateGigDescriptionForm() {
             id="description"
             {...register("description")}
             className="w-full resize-y rounded-md border border-gray-300 px-4 py-2 outline-offset-4 text-sm"
-            defaultValue={createGigData.description}
+            defaultValue={gigData.description}
             rows={10}
           />
           {errors.description && (
@@ -78,11 +78,7 @@ function CreateGigDescriptionForm() {
           See examples
         </a>
       </label>
-      <StepNavigation
-        handleBack={() => navigate("/gigs/new/title")}
-        isValid={isValid}
-        nextStepName="Labels"
-      />
+      {renderFormActions(isValid)}
     </form>
   );
 }

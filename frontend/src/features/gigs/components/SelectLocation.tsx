@@ -6,7 +6,7 @@ import { HiOutlineVideoCamera } from "react-icons/hi";
 import { HiOutlineInformationCircle } from "react-icons/hi";
 import { LuSearchX } from "react-icons/lu";
 
-import SegmentedControl from "../../../../ui/SegmentedControl";
+import SegmentedControl from "../../../ui/SegmentedControl";
 import { useAutoCompleteSuggestions } from "../hooks/useAutoCompleteSuggestions";
 import type { Dispatch, SetStateAction } from "react";
 import type { PhysicalLocation } from "../types";
