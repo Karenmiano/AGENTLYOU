@@ -20,5 +20,5 @@ referencing==0.36.2
 rpds-py==0.26.0
 sqlparse==0.5.4
 typing_extensions==4.15.0
-tzdata==2025.2
+tzdata==2026.1
 uritemplate==4.2.0
